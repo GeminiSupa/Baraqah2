@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Profile {
   id: string
@@ -184,11 +185,14 @@ export default function AdminProfilesPage() {
                   {/* Photo */}
                   <div>
                     {primaryPhoto ? (
-                      <img
-                        src={primaryPhoto.url}
-                        alt={`${profile.firstName} ${profile.lastName}`}
-                        className="w-full h-64 object-cover rounded-lg"
-                      />
+                      <div className="relative w-full h-64">
+                        <Image
+                          src={primaryPhoto.url}
+                          alt={`${profile.firstName} ${profile.lastName}`}
+                          fill
+                          className="object-cover rounded-lg"
+                        />
+                      </div>
                     ) : (
                       <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
                         <span className="text-gray-400">No Photo</span>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface PendingUser {
   id: string
@@ -169,12 +170,14 @@ export default function AdminVerificationsPage() {
                       <h3 className="font-semibold text-gray-900 mb-2">ID Document</h3>
                       <div className="mb-4">
                         {user.idDocumentUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                          <img
-                            src={user.idDocumentUrl}
-                            alt="ID Document"
-                            className="max-w-full h-auto border rounded-lg shadow-sm"
-                            style={{ maxHeight: '400px' }}
-                          />
+                          <div className="relative w-full max-w-md h-80">
+                            <Image
+                              src={user.idDocumentUrl}
+                              alt="ID Document"
+                              fill
+                              className="object-contain border rounded-lg shadow-sm bg-gray-50"
+                            />
+                          </div>
                         ) : (
                           <div className="border rounded-lg p-4 bg-gray-50">
                             <p className="text-sm text-gray-600 mb-2">PDF Document</p>
