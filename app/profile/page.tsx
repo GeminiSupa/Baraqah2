@@ -82,7 +82,7 @@ export default function ProfilePage() {
     return null
   }
 
-  const primaryPhoto = profile.photos.find(p => p.isPrimary)
+  const primaryPhoto = profile.photos.find(p => p.isPrimary) || profile.photos[0]
   const completeness = calculateProfileCompleteness(profile)
 
   return (

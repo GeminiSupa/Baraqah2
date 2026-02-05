@@ -32,6 +32,7 @@ export default function BrowsePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
@@ -152,6 +153,16 @@ export default function BrowsePage() {
   const handleCloseModal = () => {
     setShowRequestModal(false)
     setRequestMessage('')
+  }
+
+  const handleNextProfile = () => {
+    if (profiles.length === 0) return
+    setCurrentIndex((prev) => (prev + 1) % profiles.length)
+  }
+
+  const handlePrevProfile = () => {
+    if (profiles.length === 0) return
+    setCurrentIndex((prev) => (prev - 1 + profiles.length) % profiles.length)
   }
 
   if (status === 'loading' || loading) {
@@ -276,67 +287,123 @@ export default function BrowsePage() {
           </Card>
         )}
 
-        {/* Profiles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {profiles.map((profile) => {
-            const primaryPhoto = profile.photos.find(p => p.isPrimary) || profile.photos[0]
-            return (
-              <Card key={profile.id} className="overflow-hidden">
-                {primaryPhoto && (
-                  <div className="relative w-full h-48">
-                    <OptimizedImage
-                      src={primaryPhoto.url}
-                      alt={`${profile.firstName} ${profile.lastName}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                )}
-                <div className="p-4">
-                  <h3 className="text-ios-headline font-semibold text-gray-900 mb-2">
-                    {profile.firstName} {profile.lastName}
-                  </h3>
-                  <p className="text-ios-subhead text-iosGray-1 mb-2">
-                    {profile.age} years old • {profile.gender}
-                    {profile.city && ` • ${profile.city}`}
-                  </p>
-                  {profile.bio && (
-                    <p className="text-ios-body text-gray-700 mb-3 line-clamp-2">{profile.bio}</p>
-                  )}
-                  {profile.profession && (
-                    <p className="text-ios-footnote text-iosGray-1 mb-3">{profile.profession}</p>
-                  )}
-                  <div className="flex space-x-2">
-                    <Link href={`/profile/view/${profile.userId}`} className="flex-1">
-                      <Button variant="primary" size="sm" fullWidth>
-                        View Profile
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedProfile(profile)
-                        setShowRequestModal(true)
-                      }}
-                    >
-                      Request
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFavorite(profile.userId)}
-                    >
-                      ♡
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
+        {/* Tinder-style Single Profile Card */}
+        <div className="flex flex-col items-center justify-center mt-4">
+          {profiles.length > 0 ? (
+            (() => {
+              const profile = profiles[currentIndex]
+              const primaryPhoto = profile.photos.find(p => p.isPrimary) || profile.photos[0]
+              return (
+                <div className="w-full max-w-md">
+                  <Card className="overflow-hidden shadow-ios-xl rounded-ios-2xl bg-white/95">
+                    {primaryPhoto && (
+                      <div className="relative w-full h-80 bg-iosGray-5 overflow-hidden">
+                        <OptimizedImage
+                          src={primaryPhoto.url}
+                          alt={`${profile.firstName} ${profile.lastName}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-ios-title2 font-semibold text-gray-900">
+                            {profile.firstName} {profile.lastName}
+                          </h3>
+                          <p className="text-ios-subhead text-iosGray-1">
+                            {profile.age} • {profile.gender}
+                            {profile.city && ` • ${profile.city}`}
+                          </p>
+                        </div>
+                        <div className="text-right text-xs text-iosGray-1">
+                          {currentIndex + 1} / {profiles.length}
+                        </div>
+                      </div>
 
-        {profiles.length === 0 && !loading && <EmptyProfiles />}
+                      {profile.bio && (
+                        <p className="text-ios-body text-gray-700 line-clamp-3">{profile.bio}</p>
+                      )}
+
+                      <div className="flex flex-wrap gap-2">
+                        {profile.profession && (
+                          <span className="inline-flex items-center rounded-full bg-iosGray-5 px-3 py-1 text-xs text-gray-800">
+                            {profile.profession}
+                          </span>
+                        )}
+                        {profile.education && (
+                          <span className="inline-flex items-center rounded-full bg-iosGray-5 px-3 py-1 text-xs text-gray-800">
+                            {profile.education}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={handlePrevProfile}
+                          className="h-11 w-11 rounded-full border border-iosGray-4 flex items-center justify-center bg-white ios-press text-iosGray-1"
+                          aria-label="Previous profile"
+                        >
+                          ‹
+                        </button>
+
+                        <div className="flex-1 flex items-center justify-center gap-3">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            fullWidth
+                            onClick={handleNextProfile}
+                            className="max-w-[140px] bg-red-50 text-red-600 border border-red-100 hover:bg-red-100"
+                          >
+                            Skip
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            fullWidth
+                            onClick={() => {
+                              setSelectedProfile(profile)
+                              setShowRequestModal(true)
+                            }}
+                            className="max-w-[140px]"
+                          >
+                            Like & Request
+                          </Button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleNextProfile}
+                          className="h-11 w-11 rounded-full border border-iosGray-4 flex items-center justify-center bg-white ios-press text-iosGray-1"
+                          aria-label="Next profile"
+                        >
+                          ›
+                        </button>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between text-xs text-iosGray-1">
+                        <Link href={`/profile/view/${profile.userId}`} className="text-iosBlue font-medium">
+                          View full profile
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleFavorite(profile.userId)}
+                          className="text-sm"
+                        >
+                          ♡ Add to favourites
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              )
+            })()
+          ) : (
+            !loading && <EmptyProfiles />
+          )}
+        </div>
       </div>
 
       {/* Request Modal */}
