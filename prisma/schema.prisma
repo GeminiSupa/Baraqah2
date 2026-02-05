@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  phone           String?   @unique
+  password        String
+  emailVerified   Boolean   @default(false)
+  phoneVerified   Boolean   @default(false)
+  idVerified      Boolean   @default(false)
+  idDocumentUrl   String?
+  profileActive   Boolean   @default(false)
+  isAdmin         Boolean   @default(false)
+  isSuspended     Boolean   @default(false)
+  suspensionReason String?
+  suspendedBy     String?
+  suspendedAt     DateTime?
+  suspendedUntil DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  profile         Profile?
+  sentMessages    Message[] @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+  messageRequests MessageRequest[] @relation("SenderRequests")
+  receivedRequests MessageRequest[] @relation("ReceiverRequests")
+  sentQuestionnaires CustomQuestionnaire[] @relation("QuestionnaireSender")
+  receivedQuestionnaires CustomQuestionnaire[] @relation("QuestionnaireReceiver")
+  reportsMade       Report[] @relation("Reporter")
+  reportsReceived   Report[] @relation("ReportedUser")
+  accounts        Account[]
+  sessions        Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Profile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  firstName         String
+  lastName          String
+  age               Int
+  gender            String
+  photos            Photo[]
+  bio               String?
+  education         String?
+  profession        String?
+  location          String?
+  city              String?
+  // Islamic/Cultural preferences
+  sectPreference    String?
+  prayerPractice    String?
+  hijabPreference   String?
+  // Questionnaire fields
+  marriageUnderstanding      String?
+  lifeGoals                   String?
+  religiousPracticeImportance String?
+  childrenPreference          String?
+  partnerTraits               String?
+  marriageRoles               String?
+  workLifeBalance             String?
+  conflictResolution          String?
+  happyHomeVision             String?
+  dealBreakers                String?
+  spiritualGrowth             String?
+  hobbiesInterests            String?
+  // Privacy settings
+  photoPrivacy      String   @default("private")
+  profileVisibility String   @default("public")
+  // Moderation
+  moderationStatus  String   @default("pending")
+  moderationNotes   String?
+  moderatedBy       String?
+  moderatedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  profileId String
+  url       String
+  isPrimary Boolean  @default(false)
+  privacy   String   @default("private")
+  createdAt DateTime @default(now())
+  
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model MessageRequest {
+  id               String   @id @default(cuid())
+  senderId         String
+  receiverId       String
+  status           String   @default("pending") // "pending", "approved", "rejected"
+  connectionStatus String   @default("pending") // "pending", "accepted", "questionnaire_sent", "questionnaire_completed", "connected", "rejected"
+  message          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  sender           User     @relation("SenderRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver         User     @relation("ReceiverRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  questionnaires   CustomQuestionnaire[]
+}
+
+model CustomQuestionnaire {
+  id         String   @id @default(cuid())
+  requestId  String
+  senderId   String
+  receiverId String
+  questions  Json     @default("[]")
+  status     String   @default("pending") // "pending", "answered", "viewed"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  request    MessageRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender     User           @relation("QuestionnaireSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User           @relation("QuestionnaireReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  content     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  sender      User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  @@index([senderId, receiverId])
+}
+
+model Report {
+  id            String    @id @default(cuid())
+  reporterId    String
+  reportedUserId String
+  reason        String
+  description   String?
+  status        String    @default("pending")
+  adminNotes    String?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  reporter      User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser  User      @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([status])
+}

@@ -1,0 +1,14 @@
+# Copy this content to create your .env.local file
+# IMPORTANT: Replace [YOUR-DATABASE-PASSWORD] with your Supabase database password
+
+DATABASE_URL="postgresql://postgres:[YOUR-DATABASE-PASSWORD]@db.gnyzefdmxlrhfmbaafln.supabase.co:5432/postgres"
+
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="generate-this-with: openssl rand -base64 32"
+
+NEXT_PUBLIC_SUPABASE_URL="https://gnyzefdmxlrhfmbaafln.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdueXplZmRteGxyaGZtYmFhZmxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2OTAwNTMsImV4cCI6MjA4NDI2NjA1M30.6eT0lf5RoB1HoVcGwFpDZdDF7M119vX456PAO70oq8w"
+SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdueXplZmRteGxyaGZtYmFhZmxuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODY5MDA1MywiZXhwIjoyMDg0MjY2MDUzfQ.IzqX0jnj5DW5iO6P1GFmvRoDFbDqWuaCNWw5ekl9hio"
+
+UPLOAD_DIR="./public/uploads"
+MAX_FILE_SIZE=5242880
