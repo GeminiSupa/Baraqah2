@@ -214,16 +214,10 @@ function VerifyPageContent() {
 }
 
 export default function VerifyPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    }>
-      <VerifyPageContent />
-    </Suspense>
-  )
+  // Email/phone OTP verification has been disabled.
+  // Keep this page as a simple redirect so old links don't break.
+  if (typeof window !== 'undefined') {
+    window.location.href = '/profile/create'
+  }
+  return null
 }

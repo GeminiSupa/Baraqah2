@@ -77,8 +77,8 @@ export default function RegisterPage() {
         return
       }
 
-      // Redirect to verification page
-      router.push('/verify?email=' + encodeURIComponent(formData.email))
+      // No OTP/email/phone verification step – go straight into the app
+      router.push('/profile/create')
     } catch (error) {
       setError('An error occurred. Please try again.')
     } finally {

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create user
+    // Create user (no email/phone verification required)
     const { data: user, error: insertError } = await supabaseAdmin
       .from('users')
       .insert({
@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         gender: gender || null,
         age: age || null,
-        email_verified: false,
-        phone_verified: false,
+        email_verified: true,
+        phone_verified: true,
         id_verified: false,
         profile_active: false,
       })
@@ -98,27 +98,6 @@ export async function POST(req: NextRequest) {
         { error: 'Registration failed', details: insertError.message },
         { status: 500 }
       )
-    }
-
-    // Automatically send OTP for email verification after registration
-    try {
-      const { generateOTP, storeOTP } = await import('@/lib/otp')
-      const { sendOTPEmail } = await import('@/lib/email')
-      
-      const emailOtp = generateOTP()
-      storeOTP(email, emailOtp, 'email')
-      await sendOTPEmail(email, emailOtp)
-      
-      // If phone provided, also send phone OTP
-      if (phone) {
-        const { sendOTPSMS } = await import('@/lib/sms')
-        const phoneOtp = generateOTP()
-        storeOTP(phone, phoneOtp, 'phone')
-        await sendOTPSMS(phone, phoneOtp)
-      }
-    } catch (otpError) {
-      console.error('Failed to send OTP after registration:', otpError)
-      // Don't fail registration if OTP sending fails
     }
 
     return NextResponse.json(

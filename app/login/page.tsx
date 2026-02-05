@@ -28,19 +28,18 @@ export default function LoginPage() {
       if (result?.error) {
         setError(result.error)
       } else {
-        // Check if user is admin and redirect accordingly
-        // We need to get the session to check admin status
+        // After successful sign-in:
+        // - Admins go to admin dashboard
+        // - Regular users go straight into the app (no email/SMS/ID gating)
         const sessionResponse = await fetch('/api/auth/session')
         const sessionData = await sessionResponse.json()
-        
+
         if (sessionData?.user?.isAdmin) {
           router.push('/admin')
-        } else if (!sessionData?.user?.idVerified) {
-          router.push('/id-verification')
-        } else if (!sessionData?.user?.profileActive) {
-          router.push('/profile/create')
+        } else if (sessionData?.user?.profileActive) {
+          router.push('/browse')
         } else {
-          router.push('/profile')
+          router.push('/profile/create')
         }
         router.refresh()
       }

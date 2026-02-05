@@ -132,14 +132,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if user is ID verified (admins can bypass this check)
-    if (!session.user.idVerified && !session.user.isAdmin) {
-      return NextResponse.json(
-        { error: 'Please verify your identity first' },
-        { status: 403 }
-      )
-    }
-
     const body = await req.json()
     const data = profileSchema.parse(body)
 
