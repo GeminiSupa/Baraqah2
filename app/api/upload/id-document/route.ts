@@ -6,6 +6,10 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 
+// Route segment config for App Router
+export const runtime = 'nodejs'
+export const maxDuration = 30
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -21,10 +25,16 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File
 
     if (!file) {
+      console.error('No file in formData')
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
       )
+    }
+
+    // File received - log only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('File received:', { name: file.name, type: file.type, size: file.size })
     }
 
     // Validate file type (PDF, JPG, PNG) - check both MIME type and extension
@@ -56,14 +66,22 @@ export async function POST(req: NextRequest) {
 
     // Create upload directory if it doesn't exist
     const uploadDir = join(process.cwd(), 'public', 'uploads', 'id-documents')
+    
     try {
       if (!existsSync(uploadDir)) {
         await mkdir(uploadDir, { recursive: true })
       }
+      
+      // Verify directory is writable
+      const { access, constants } = await import('fs/promises')
+      await access(uploadDir, constants.W_OK)
     } catch (dirError) {
-      console.error('Failed to create upload directory:', dirError)
+      console.error('Failed to create/access upload directory:', dirError)
       return NextResponse.json(
-        { error: 'Failed to create upload directory. Please contact support.' },
+        { 
+          error: 'Failed to create upload directory. Please contact support.',
+          details: process.env.NODE_ENV === 'development' ? String(dirError) : undefined
+        },
         { status: 500 }
       )
     }
@@ -93,11 +111,25 @@ export async function POST(req: NextRequest) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
       await writeFile(filepath, buffer)
-      console.log('File saved successfully:', filepath)
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('ID document uploaded successfully:', filename)
+      }
     } catch (writeError) {
-      console.error('Failed to write file:', writeError)
+      console.error('Failed to write file - Full error:', {
+        error: writeError,
+        message: writeError instanceof Error ? writeError.message : String(writeError),
+        stack: writeError instanceof Error ? writeError.stack : undefined,
+        filepath,
+        uploadDir,
+        dirExists: existsSync(uploadDir),
+        fileSize: file.size,
+      })
       return NextResponse.json(
-        { error: 'Failed to save file. Please try again or contact support.' },
+        { 
+          error: `Failed to save file: ${writeError instanceof Error ? writeError.message : 'Unknown error'}`,
+          details: process.env.NODE_ENV === 'development' ? String(writeError) : undefined
+        },
         { status: 500 }
       )
     }
