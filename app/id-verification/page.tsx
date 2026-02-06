@@ -28,10 +28,18 @@ export default function IDVerificationPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      // Validate file type
+      // Get file extension as fallback for camera photos
+      const fileName = selectedFile.name.toLowerCase()
+      const fileExtension = fileName.split('.').pop()
+      const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png']
+      
+      // Validate file type - check both MIME type and extension
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
-      if (!allowedTypes.includes(selectedFile.type)) {
-        setError('Invalid file type. Only PDF, JPG, and PNG are allowed.')
+      const isValidType = allowedTypes.includes(selectedFile.type) || 
+                         (fileExtension && allowedExtensions.includes(fileExtension))
+      
+      if (!isValidType) {
+        setError(`Invalid file type. Only PDF, JPG, and PNG are allowed. Detected: ${selectedFile.type || 'unknown'}`)
         return
       }
 
@@ -44,6 +52,7 @@ export default function IDVerificationPage() {
 
       setFile(selectedFile)
       setError('')
+      setSuccess(false)
     }
   }
 
@@ -69,18 +78,22 @@ export default function IDVerificationPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Upload failed')
+        const errorMessage = data.error || data.message || 'Upload failed'
+        console.error('Upload error:', errorMessage, data)
+        setError(errorMessage)
         return
       }
 
       setSuccess(true)
       setFile(null)
+      setError('')
       
       // Reset form
       const fileInput = document.getElementById('file') as HTMLInputElement
       if (fileInput) fileInput.value = ''
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      console.error('Upload exception:', error)
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
     } finally {
       setUploading(false)
     }
@@ -140,9 +153,10 @@ export default function IDVerificationPage() {
                 id="file"
                 name="file"
                 type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png,image/jpg"
+                capture="environment"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-iosBlue file:text-white hover:file:bg-iosBlue-dark cursor-pointer"
                 required
               />
               <p className="mt-2 text-sm text-gray-500">

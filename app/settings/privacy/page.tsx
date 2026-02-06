@@ -252,6 +252,53 @@ export default function PrivacySettingsPage() {
           )}
         </Card>
 
+        {/* Delete Account Section */}
+        <Card className="mb-6 rounded-3xl shadow-xl border border-red-100/50 bg-red-50/30">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Delete Account</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Permanently delete your account and all associated data. This action cannot be undone.
+          </p>
+          <Button
+            variant="danger"
+            size="md"
+            onClick={async () => {
+              if (!confirm('Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.')) {
+                return
+              }
+              
+              if (!confirm('This is your final warning. Your account, profile, photos, messages, and all data will be permanently deleted. Are you absolutely sure?')) {
+                return
+              }
+
+              try {
+                setSaving(true)
+                setError('')
+                const response = await fetch('/api/profile/delete', {
+                  method: 'DELETE',
+                })
+
+                const data = await response.json()
+
+                if (response.ok) {
+                  alert('Your account has been deleted successfully. You will be redirected to the home page.')
+                  router.push('/')
+                  // Sign out will happen automatically on redirect
+                } else {
+                  setError(data.error || 'Failed to delete account')
+                }
+              } catch (error) {
+                setError('An error occurred. Please try again.')
+              } finally {
+                setSaving(false)
+              }
+            }}
+            disabled={saving}
+            className="font-semibold"
+          >
+            {saving ? 'Deleting...' : 'Delete My Account'}
+          </Button>
+        </Card>
+
         <Button
           variant="primary"
           fullWidth
