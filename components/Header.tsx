@@ -44,6 +44,34 @@ export function Header() {
     }
   }, [status, session?.user?.id])
 
+  // Listen for custom events to refresh photo when it changes
+  useEffect(() => {
+    const handleCustomEvent = () => {
+      if (status === 'authenticated' && session?.user?.id) {
+        fetch('/api/profile')
+          .then(res => res.json())
+          .then(data => {
+            if (data.profile) {
+              // Get primary photo or first photo
+              if (data.profile.photos && data.profile.photos.length > 0) {
+                const primaryPhoto = data.profile.photos.find((p: any) => p.isPrimary) || data.profile.photos[0]
+                if (primaryPhoto?.url) {
+                  setProfilePhoto(primaryPhoto.url)
+                }
+              }
+            }
+          })
+          .catch(() => {})
+      }
+    }
+
+    window.addEventListener('profile-photo-updated', handleCustomEvent)
+
+    return () => {
+      window.removeEventListener('profile-photo-updated', handleCustomEvent)
+    }
+  }, [status, session?.user?.id])
+
   const displayName = userName || session?.user?.email || 'User'
   const userInitial = displayName.charAt(0).toUpperCase()
 

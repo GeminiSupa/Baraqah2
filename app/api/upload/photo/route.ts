@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { access, constants } from 'fs/promises'
@@ -42,17 +42,32 @@ export async function POST(req: NextRequest) {
     const privacy = formData.get('privacy') || 'private'
 
     if (!file) {
+      console.error('No file in formData')
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
       )
     }
 
-    // Validate file type (images only)
+    // File received - log only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('File received:', { name: file.name, type: file.type, size: file.size })
+    }
+
+    // Validate file type (images only) - check both MIME type and extension
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
-    if (!allowedTypes.includes(file.type)) {
+    const fileName = file.name.toLowerCase()
+    const fileExtension = fileName.split('.').pop()
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp']
+    
+    // Camera photos might not have correct MIME type, so check extension too
+    const isValidType = allowedTypes.includes(file.type) || 
+                       (fileExtension && allowedExtensions.includes(fileExtension))
+    
+    if (!isValidType) {
+      console.error('Invalid file type:', { type: file.type, name: file.name, extension: fileExtension })
       return NextResponse.json(
-        { error: 'Invalid file type. Only JPG, PNG, and WebP are allowed.' },
+        { error: `Invalid file type. Only JPG, PNG, and WebP are allowed. Detected: ${file.type || 'unknown'}` },
         { status: 400 }
       )
     }
@@ -94,10 +109,25 @@ export async function POST(req: NextRequest) {
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
       await writeFile(filepath, buffer)
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Photo uploaded successfully:', filename)
+      }
     } catch (writeError) {
-      console.error('Failed to write file:', writeError)
+      console.error('Failed to write file - Full error:', {
+        error: writeError,
+        message: writeError instanceof Error ? writeError.message : String(writeError),
+        stack: writeError instanceof Error ? writeError.stack : undefined,
+        filepath,
+        uploadDir,
+        dirExists: existsSync(uploadDir),
+        fileSize: file.size,
+      })
       return NextResponse.json(
-        { error: 'Failed to save file. Please try again.' },
+        { 
+          error: `Failed to save file: ${writeError instanceof Error ? writeError.message : 'Unknown error'}`,
+          details: process.env.NODE_ENV === 'development' ? String(writeError) : undefined
+        },
         { status: 500 }
       )
     }
@@ -126,8 +156,19 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       console.error('Insert error:', insertError)
+      // Try to clean up the uploaded file if database insert fails
+      try {
+        if (existsSync(filepath)) {
+          await unlink(filepath)
+        }
+      } catch (cleanupError) {
+        console.error('Failed to cleanup file after insert error:', cleanupError)
+      }
       return NextResponse.json(
-        { error: 'Failed to upload photo' },
+        { 
+          error: 'Failed to save photo record',
+          details: process.env.NODE_ENV === 'development' ? insertError.message : undefined
+        },
         { status: 500 }
       )
     }
@@ -145,11 +186,14 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     )
-  } catch (error: any) {
+  } catch (error) {
     console.error('Photo upload error:', error)
-    const errorMessage = error?.message || 'Failed to upload photo'
+    const errorMessage = error instanceof Error ? error.message : 'Failed to upload photo'
     return NextResponse.json(
-      { error: errorMessage },
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     )
   }

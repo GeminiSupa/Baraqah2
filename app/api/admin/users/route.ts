@@ -151,23 +151,52 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (action === 'delete') {
-      // Delete user (cascade will handle related data)
+      // Safety check: Prevent deleting admins
+      const { data: targetUser, error: checkError } = await supabaseAdmin
+        .from('users')
+        .select('id, email, is_admin')
+        .eq('id', userId)
+        .single()
+
+      if (checkError || !targetUser) {
+        return NextResponse.json(
+          { error: 'User not found' },
+          { status: 404 }
+        )
+      }
+
+      if (targetUser.is_admin) {
+        return NextResponse.json(
+          { error: 'Cannot delete admin users' },
+          { status: 403 }
+        )
+      }
+
+      // Prevent self-deletion
+      if (targetUser.id === session.user.id) {
+        return NextResponse.json(
+          { error: 'Cannot delete your own account' },
+          { status: 403 }
+        )
+      }
+
+      // Delete user (cascade will handle related data: profile, photos, messages, favorites, etc.)
       const { error: deleteError } = await supabaseAdmin
         .from('users')
         .delete()
         .eq('id', userId)
-        .eq('is_admin', false) // Safety check
+        .eq('is_admin', false) // Extra safety check
 
       if (deleteError) {
         console.error('Delete error:', deleteError)
         return NextResponse.json(
-          { error: 'Failed to delete user' },
+          { error: 'Failed to delete user', details: deleteError.message },
           { status: 500 }
         )
       }
 
       return NextResponse.json(
-        { message: 'User deleted successfully' },
+        { message: `User ${targetUser.email} deleted successfully` },
         { status: 200 }
       )
     }

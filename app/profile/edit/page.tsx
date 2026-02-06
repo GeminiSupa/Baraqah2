@@ -11,6 +11,7 @@ export default function EditProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [processing, setProcessing] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [photos, setPhotos] = useState<Array<{ id: string; url: string; isPrimary: boolean }>>([])
@@ -98,19 +99,93 @@ export default function EditProfilePage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Failed to upload photo')
+        const errorMessage = data.error || data.message || 'Upload failed'
+        console.error('Upload error:', errorMessage, data)
+        setError(errorMessage + (data.details ? ` (${data.details})` : ''))
         return
       }
 
       setSuccess('Photo uploaded successfully')
-      setPhotos([...photos, { id: data.photo.id, url: data.photo.url, isPrimary: data.photo.isPrimary }])
+      // Refresh photos list
+      await fetchProfile()
       
       // Reset file input
       e.target.value = ''
     } catch (error) {
-      setError('An error occurred while uploading the photo')
+      console.error('Upload exception:', error)
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
     } finally {
       setUploading(false)
+    }
+  }
+
+  const handleSetPrimary = async (photoId: string) => {
+    setProcessing(photoId)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch(`/api/photos/${photoId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'set-primary' }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        const errorMessage = data.error || 'Failed to set photo as primary'
+        console.error('Set primary error:', errorMessage, data)
+        setError(errorMessage)
+        return
+      }
+
+      setSuccess('Photo set as primary successfully')
+      // Refresh photos list
+      await fetchProfile()
+      // Trigger header refresh
+      window.dispatchEvent(new Event('profile-photo-updated'))
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (error) {
+      console.error('Set primary exception:', error)
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
+    } finally {
+      setProcessing(null)
+    }
+  }
+
+  const handleDeletePhoto = async (photoId: string) => {
+    if (!confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
+      return
+    }
+
+    setProcessing(photoId)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch(`/api/photos/${photoId}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to delete photo')
+        return
+      }
+
+      setSuccess('Photo deleted successfully')
+      // Refresh photos list
+      await fetchProfile()
+      setTimeout(() => setSuccess(''), 3000)
+    } catch (error) {
+      console.error('Delete photo error:', error)
+      setError('An error occurred. Please try again.')
+    } finally {
+      setProcessing(null)
     }
   }
 
@@ -173,7 +248,7 @@ export default function EditProfilePage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Photos</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               {photos.map((photo) => (
-                <div key={photo.id} className="relative h-32 rounded-lg overflow-hidden">
+                <div key={photo.id} className="relative h-32 md:h-40 rounded-lg overflow-hidden border-2 border-gray-200 group">
                   <OptimizedImage
                     src={photo.url}
                     alt="Profile"
@@ -181,10 +256,31 @@ export default function EditProfilePage() {
                     className="object-cover"
                   />
                   {photo.isPrimary && (
-                    <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                      Primary
+                    <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded font-semibold z-10 shadow-md">
+                      ✓ Primary
                     </span>
                   )}
+                  {/* Action buttons - always visible on mobile, hover on desktop */}
+                  <div className="absolute inset-0 bg-black/60 md:bg-black/50 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 z-10 p-2">
+                    {!photo.isPrimary && (
+                      <button
+                        onClick={() => handleSetPrimary(photo.id)}
+                        disabled={processing === photo.id}
+                        className="w-full md:w-auto px-3 py-2 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md"
+                        title="Set as primary photo"
+                      >
+                        {processing === photo.id ? 'Setting...' : 'Set as Primary'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id)}
+                      disabled={processing === photo.id}
+                      className="w-full md:w-auto px-3 py-2 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md"
+                      title="Delete photo"
+                    >
+                      {processing === photo.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

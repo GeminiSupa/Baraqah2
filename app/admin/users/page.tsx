@@ -36,6 +36,7 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [showSuspendModal, setShowSuspendModal] = useState<{ userId: string; email: string } | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState<{ userId: string; email: string } | null>(null)
   const [suspendReason, setSuspendReason] = useState('')
 
   const fetchUsers = useCallback(async () => {
@@ -86,7 +87,8 @@ export default function AdminUsersPage() {
       return
     }
 
-    if (action === 'delete' && !confirm(`Are you sure you want to delete user ${email}? This action cannot be undone.`)) {
+    if (action === 'delete') {
+      setShowDeleteModal({ userId, email })
       return
     }
 
@@ -112,6 +114,7 @@ export default function AdminUsersPage() {
       if (response.ok) {
         setSuccess(data.message || 'Action completed successfully')
         setShowSuspendModal(null)
+        setShowDeleteModal(null)
         setSuspendReason('')
         fetchUsers()
         setTimeout(() => setSuccess(''), 3000)
@@ -128,6 +131,42 @@ export default function AdminUsersPage() {
   const handleSuspendConfirm = () => {
     if (!showSuspendModal) return
     handleAction(showSuspendModal.userId, 'suspend', showSuspendModal.email)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!showDeleteModal) return
+    
+    setProcessing(showDeleteModal.userId)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: showDeleteModal.userId,
+          action: 'delete',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSuccess(data.message || 'User deleted successfully')
+        setShowDeleteModal(null)
+        fetchUsers()
+        setTimeout(() => setSuccess(''), 3000)
+      } else {
+        setError(data.error || 'Failed to delete user')
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.')
+    } finally {
+      setProcessing(null)
+    }
   }
 
   if (status === 'loading' || loading) {
@@ -375,7 +414,7 @@ export default function AdminUsersPage() {
                 value={suspendReason}
                 onChange={(e) => setSuspendReason(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 placeholder="Enter reason for suspension..."
               />
             </div>
@@ -393,6 +432,50 @@ export default function AdminUsersPage() {
                   setSuspendReason('')
                 }}
                 className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 className="text-lg font-bold text-red-600 mb-4">Delete User</h3>
+            <div className="mb-4">
+              <p className="text-sm text-gray-700 mb-2">
+                Are you sure you want to <strong className="text-red-600">permanently delete</strong> user:
+              </p>
+              <p className="text-base font-semibold text-gray-900 mb-4">{showDeleteModal.email}</p>
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-red-800 font-medium mb-1">⚠️ Warning: This action cannot be undone!</p>
+                <p className="text-xs text-red-700">
+                  This will permanently delete:
+                </p>
+                <ul className="text-xs text-red-700 list-disc list-inside mt-1 space-y-1">
+                  <li>User account</li>
+                  <li>Profile and all profile data</li>
+                  <li>All uploaded photos</li>
+                  <li>All messages and conversations</li>
+                  <li>All favorites and connections</li>
+                </ul>
+              </div>
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={processing === showDeleteModal.userId}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 font-semibold"
+              >
+                {processing === showDeleteModal.userId ? 'Deleting...' : 'Delete User'}
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(null)}
+                disabled={processing === showDeleteModal.userId}
+                className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
               >
                 Cancel
               </button>

@@ -68,7 +68,12 @@ function formatProfile(profile: any) {
     hobbiesInterests: profile.hobbies_interests,
     createdAt: profile.created_at,
     updatedAt: profile.updated_at,
-    photos: profile.photos || [],
+    photos: (profile.photos || []).map((p: any) => ({
+      id: p.id,
+      url: p.url,
+      isPrimary: p.is_primary,
+      privacy: p.privacy,
+    })),
   }
 }
 
