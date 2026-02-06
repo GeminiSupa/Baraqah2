@@ -5,6 +5,11 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { access, constants } from 'fs/promises'
+
+// Route segment config for App Router
+export const runtime = 'nodejs'
+export const maxDuration = 30
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,16 +72,35 @@ export async function POST(req: NextRequest) {
       await mkdir(uploadDir, { recursive: true })
     }
 
+    // Check if directory is writable
+    try {
+      await access(uploadDir, constants.W_OK)
+    } catch (error) {
+      console.error('Upload directory is not writable:', uploadDir, error)
+      return NextResponse.json(
+        { error: 'Failed to create upload directory' },
+        { status: 500 }
+      )
+    }
+
     // Generate unique filename
     const timestamp = Date.now()
-    const extension = file.name.split('.').pop()
+    const extension = file.name.split('.').pop() || 'jpg'
     const filename = `${session.user.id}-${timestamp}.${extension}`
     const filepath = join(uploadDir, filename)
 
     // Save file
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filepath, buffer)
+    try {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      await writeFile(filepath, buffer)
+    } catch (writeError) {
+      console.error('Failed to write file:', writeError)
+      return NextResponse.json(
+        { error: 'Failed to save file. Please try again.' },
+        { status: 500 }
+      )
+    }
 
     // If this is primary, unset other primary photos
     if (isPrimary) {
@@ -121,10 +145,11 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     )
-  } catch (error) {
+  } catch (error: any) {
     console.error('Photo upload error:', error)
+    const errorMessage = error?.message || 'Failed to upload photo'
     return NextResponse.json(
-      { error: 'Failed to upload photo' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

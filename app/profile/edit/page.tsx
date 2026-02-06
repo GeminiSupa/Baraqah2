@@ -218,7 +218,7 @@ export default function EditProfilePage() {
                   required
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -233,7 +233,7 @@ export default function EditProfilePage() {
                   required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -250,7 +250,7 @@ export default function EditProfilePage() {
                   max="100"
                   value={formData.age}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -264,7 +264,7 @@ export default function EditProfilePage() {
                   required
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -282,7 +282,7 @@ export default function EditProfilePage() {
                   name="education"
                   value={formData.education}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -296,7 +296,7 @@ export default function EditProfilePage() {
                   name="profession"
                   value={formData.profession}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -310,7 +310,7 @@ export default function EditProfilePage() {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
             </div>
@@ -325,7 +325,7 @@ export default function EditProfilePage() {
                 rows={4}
                 value={formData.bio}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
               />
             </div>
 
@@ -341,7 +341,7 @@ export default function EditProfilePage() {
                     name="sectPreference"
                     value={formData.sectPreference}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="">Select preference</option>
                     <option value="sunni">Sunni</option>
@@ -359,7 +359,7 @@ export default function EditProfilePage() {
                     name="prayerPractice"
                     value={formData.prayerPractice}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="">Select practice</option>
                     <option value="regular">Regular</option>
@@ -377,7 +377,7 @@ export default function EditProfilePage() {
                     name="hijabPreference"
                     value={formData.hijabPreference}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="">Select preference</option>
                     <option value="required">Required</option>
@@ -400,7 +400,7 @@ export default function EditProfilePage() {
                     name="photoPrivacy"
                     value={formData.photoPrivacy}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="private">Private</option>
                     <option value="public">Public</option>
@@ -417,7 +417,7 @@ export default function EditProfilePage() {
                     name="profileVisibility"
                     value={formData.profileVisibility}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="public">Public</option>
                     <option value="private">Private</option>

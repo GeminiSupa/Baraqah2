@@ -116,7 +116,7 @@ export default function CreateProfilePage() {
                   required
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -131,7 +131,7 @@ export default function CreateProfilePage() {
                   required
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -148,7 +148,7 @@ export default function CreateProfilePage() {
                   max="100"
                   value={formData.age}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 />
               </div>
 
@@ -162,7 +162,7 @@ export default function CreateProfilePage() {
                   required
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -180,7 +180,7 @@ export default function CreateProfilePage() {
                   name="education"
                   value={formData.education}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   placeholder="e.g., Bachelor's Degree, Master's"
                 />
               </div>
@@ -195,7 +195,7 @@ export default function CreateProfilePage() {
                   name="profession"
                   value={formData.profession}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   placeholder="e.g., Software Engineer, Teacher"
                 />
               </div>
@@ -210,7 +210,7 @@ export default function CreateProfilePage() {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   placeholder="Country, Region"
                 />
               </div>
@@ -226,7 +226,7 @@ export default function CreateProfilePage() {
                   required
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   placeholder="e.g., Berlin, Karachi, London"
                 />
               </div>
@@ -242,7 +242,7 @@ export default function CreateProfilePage() {
                 rows={4}
                 value={formData.bio}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 placeholder="Tell others about yourself..."
               />
             </div>
@@ -259,7 +259,7 @@ export default function CreateProfilePage() {
                     name="sectPreference"
                     value={formData.sectPreference}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="">Select preference</option>
                     <option value="sunni">Sunni</option>
@@ -277,7 +277,7 @@ export default function CreateProfilePage() {
                     name="prayerPractice"
                     value={formData.prayerPractice}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="">Select practice</option>
                     <option value="regular">Regular</option>
@@ -295,7 +295,7 @@ export default function CreateProfilePage() {
                     name="hijabPreference"
                     value={formData.hijabPreference}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="">Select preference</option>
                     <option value="required">Required</option>
@@ -323,7 +323,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.marriageUnderstanding}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Discuss salah together, halal lifestyle, supporting each other's ibadah..."
                   />
                 </div>
@@ -339,7 +339,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.lifeGoals}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Building financial stability, pursuing higher studies, helping community, or traveling for Umrah/Hajj..."
                   />
                 </div>
@@ -355,7 +355,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.religiousPracticeImportance}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="Be specific about your level without judging — this shows compatibility in values..."
                   />
                 </div>
@@ -371,7 +371,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.childrenPreference}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., 2–3 kids, focus on Islamic education, good akhlaq, balanced modern + deeni tarbiyat..."
                   />
                 </div>
@@ -387,7 +387,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.partnerTraits}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Kindness, patience, honesty, sense of humor, ability to communicate openly, supportive nature..."
                   />
                 </div>
@@ -403,7 +403,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.marriageRoles}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Mutual respect, shared decisions, helping each other, maintaining family ties..."
                   />
                 </div>
@@ -419,7 +419,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.workLifeBalance}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="Especially relevant if you&apos;re in Germany/Europe — discuss career vs. family priorities..."
                   />
                 </div>
@@ -435,7 +435,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.conflictResolution}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Through calm discussion, seeking advice from elders/Quran/Sunnah, forgiveness..."
                   />
                 </div>
@@ -451,7 +451,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.happyHomeVision}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Family prayers, home-cooked meals, quality time, halal outings..."
                   />
                 </div>
@@ -467,7 +467,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.dealBreakers}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="e.g., Must pray regularly, no interest in lavish lifestyle, values simplicity, open to relocation if needed..."
                   />
                 </div>
@@ -483,7 +483,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.spiritualGrowth}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="A spiritual angle many appreciate in rishta profiles..."
                   />
                 </div>
@@ -499,7 +499,7 @@ export default function CreateProfilePage() {
                     rows={4}
                     value={formData.hobbiesInterests}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                     placeholder="Share your interests and how you'd like to share them with your spouse..."
                   />
                 </div>
@@ -518,7 +518,7 @@ export default function CreateProfilePage() {
                     name="photoPrivacy"
                     value={formData.photoPrivacy}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="private">Private</option>
                     <option value="public">Public</option>
@@ -535,7 +535,7 @@ export default function CreateProfilePage() {
                     name="profileVisibility"
                     value={formData.profileVisibility}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
                     <option value="public">Public</option>
                     <option value="private">Private</option>
