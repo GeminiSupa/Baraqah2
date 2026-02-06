@@ -133,48 +133,44 @@ export default function ConversationPage() {
   const otherUserInitial = otherUserName.charAt(0).toUpperCase()
 
   return (
-    <div className="min-h-screen bg-[#e5ddd5] flex flex-col safe-top safe-bottom relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex flex-col safe-top safe-bottom relative">
       <AnimatedBackground intensity="minimal" />
       <div className="relative z-10 flex flex-col flex-1">
-      {/* WhatsApp-like Header - Fixed */}
-      <div className="bg-[#075e54] text-white px-4 py-3 flex items-center gap-3 safe-top sticky top-0 z-10 shadow-ios">
+      {/* Elegant Header - Matrimonial Theme */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 safe-top sticky top-0 z-10 shadow-sm">
         <button
           onClick={() => router.back()}
-          className="p-2 -ml-2 ios-press rounded-ios text-white"
+          className="p-2 -ml-2 ios-press rounded-xl text-gray-600 hover:bg-gray-100"
           aria-label="Go back"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold flex-shrink-0">
+        <div className="w-10 h-10 rounded-full bg-iosBlue flex items-center justify-center text-white font-semibold flex-shrink-0">
           {otherUserInitial}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-ios-headline font-semibold text-white truncate">{otherUserName}</h1>
-          <p className="text-ios-footnote text-white/80">Online</p>
+          <h1 className="text-lg font-semibold text-gray-900 truncate">{otherUserName}</h1>
+          <p className="text-sm text-gray-500">Active now</p>
         </div>
-        <button className="p-2 ios-press rounded-ios text-white" aria-label="More options">
+        <button className="p-2 ios-press rounded-xl text-gray-600 hover:bg-gray-100" aria-label="More options">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
           </svg>
         </button>
       </div>
 
-      {/* Messages Area - WhatsApp-like with pattern background */}
+      {/* Messages Area - Elegant Background */}
       <div 
-        className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 space-y-1 ios-scroll"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='a' patternUnits='userSpaceOnUse' width='100' height='100' patternTransform='scale(0.5) rotate(0)'%3E%3Crect x='0' y='0' width='100%25' height='100%25' fill='hsla(0,0%25,100%25,1)'/%3E%3Cpath d='M11.6 21a1 1 0 0 1-.87-.49l-7.12-12a1 1 0 0 1 0-1l7.12-12a1 1 0 0 1 1.74 0l7.12 12a1 1 0 0 1 0 1l-7.12 12a1 1 0 0 1-.87.49zm-6.24-12l6.24 10.5 6.24-10.5L12 2.5 5.36 9z' stroke-width='0.5' stroke='hsla(258.5,59.4%25,59.4%25,0.15)' fill='none'/%3E%3C/pattern%3E%3C/defs%3E%3Crect fill='url(%23a)' height='100%25' width='100%25'/%3E%3C/svg%3E")`,
-          backgroundColor: '#e5ddd5',
-        }}
+        className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-3 ios-scroll bg-gradient-to-b from-gray-50 to-white"
       >
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full min-h-[60vh]">
             <div className="text-center px-4">
               <div className="text-6xl mb-4">💬</div>
-              <p className="text-ios-body text-iosGray-1">No messages yet</p>
-              <p className="text-ios-footnote text-iosGray-2 mt-2">Start the conversation! 👋</p>
+              <p className="text-base text-gray-600">No messages yet</p>
+              <p className="text-sm text-gray-500 mt-2">Start the conversation! 👋</p>
             </div>
           </div>
         ) : (
@@ -194,32 +190,32 @@ export default function ConversationPage() {
             return (
               <div
                 key={message.id}
-                className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} items-end gap-1.5 sm:gap-2 ${showAvatar ? 'mt-2' : 'mt-0.5'}`}
+                className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} items-end gap-2 sm:gap-3 ${showAvatar ? 'mt-3' : 'mt-1'}`}
               >
                 {!isOwnMessage && (
-                  <div className={`w-8 h-8 rounded-full bg-[#075e54] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 ${showAvatar ? '' : 'invisible'}`}>
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-iosBlue flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 ${showAvatar ? '' : 'invisible'}`}>
                     {otherUserInitial}
                   </div>
                 )}
                 <div
-                  className={`max-w-[85%] sm:max-w-md px-3 py-1.5 sm:py-2 rounded-lg shadow-sm ${
+                  className={`max-w-[85%] sm:max-w-md px-4 py-2.5 rounded-2xl shadow-md ${
                     isOwnMessage
-                      ? 'bg-[#dcf8c6] text-gray-900 rounded-tr-none'
-                      : 'bg-white text-gray-900 rounded-tl-none'
+                      ? 'bg-iosBlue text-white rounded-br-sm'
+                      : 'bg-white text-gray-900 border border-gray-200 rounded-bl-sm'
                   }`}
                 >
-                  <p className="text-sm sm:text-ios-body whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
-                  <div className={`flex items-center justify-end gap-1 mt-0.5 ${isOwnMessage ? 'text-[#667781]' : 'text-[#667781]'}`}>
-                    <span className="text-[10px] sm:text-ios-caption2">{timeString}</span>
+                  <p className="text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+                  <div className={`flex items-center justify-end gap-1.5 mt-1.5 ${isOwnMessage ? 'text-white/80' : 'text-gray-500'}`}>
+                    <span className="text-xs">{timeString}</span>
                     {isOwnMessage && (
-                      <span className="text-[10px] sm:text-xs ml-0.5">
+                      <span className="text-xs ml-0.5">
                         {message.isRead ? '✓✓' : '✓'}
                       </span>
                     )}
                   </div>
                 </div>
                 {isOwnMessage && (
-                  <div className={`w-8 h-8 rounded-full bg-iosGreen flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 ${showAvatar ? '' : 'invisible'}`}>
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 text-xs font-semibold flex-shrink-0 ${showAvatar ? '' : 'invisible'}`}>
                     {session?.user?.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
                 )}
@@ -230,10 +226,10 @@ export default function ConversationPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area - WhatsApp-like */}
-      <div className="bg-white border-t border-iosGray-4 px-2 sm:px-4 py-2 sm:py-3 safe-bottom">
-        <form onSubmit={handleSend} className="flex items-end gap-2">
-          <div className="flex-1 flex items-center gap-2 bg-white border border-iosGray-4 rounded-full px-2 sm:px-4 py-2 min-h-[44px]">
+      {/* Input Area - Elegant Design */}
+      <div className="bg-white border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4 safe-bottom">
+        <form onSubmit={handleSend} className="flex items-end gap-3">
+          <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 min-h-[44px]">
             <EmojiPicker
               onEmojiSelect={(emoji) => setNewMessage(prev => prev + emoji)}
               className="flex-shrink-0"
@@ -242,8 +238,8 @@ export default function ConversationPage() {
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type a message"
-              className="flex-1 bg-transparent border-0 outline-none text-sm sm:text-ios-body text-gray-900 placeholder-iosGray-2"
+              placeholder="Type a message..."
+              className="flex-1 bg-transparent border-0 outline-none text-sm sm:text-base text-gray-900 placeholder-gray-400"
               disabled={sending}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -258,7 +254,7 @@ export default function ConversationPage() {
           <button
             type="submit"
             disabled={sending || !newMessage.trim()}
-            className="w-11 h-11 sm:w-12 sm:h-12 bg-[#075e54] text-white rounded-full flex items-center justify-center ios-press disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-ios"
+            className="w-11 h-11 sm:w-12 sm:h-12 bg-iosBlue text-white rounded-full flex items-center justify-center ios-press disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-md hover:bg-iosBlue-dark transition-colors"
             aria-label="Send message"
           >
             {sending ? (
@@ -270,7 +266,7 @@ export default function ConversationPage() {
             )}
           </button>
         </form>
-        <p className="text-ios-caption2 text-iosGray-2 mt-2 px-2 text-center">
+        <p className="text-xs text-gray-500 mt-2 px-2 text-center">
           <strong>Privacy:</strong> Personal contact info will be filtered for your safety.
         </p>
       </div>

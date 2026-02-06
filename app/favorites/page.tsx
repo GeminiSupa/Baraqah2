@@ -84,21 +84,21 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-iosBg-secondary py-8 px-4 safe-top safe-bottom relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom relative">
       <AnimatedBackground intensity="subtle" />
       <div className="relative z-10">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-ios-title1 font-bold text-gray-900">Favorites</h1>
-          <p className="text-ios-body text-iosGray-1 mt-2">Profiles you&apos;ve saved</p>
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Favorites</h1>
+          <p className="text-base text-gray-600">Profiles you&apos;ve saved</p>
         </div>
 
         {favorites.length === 0 ? (
           <EmptyFavorites />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {favorites.map((favorite) => (
-              <Card key={favorite.id} className="overflow-hidden">
+              <Card key={favorite.id} className="overflow-hidden rounded-3xl shadow-xl border border-gray-100/50">
                 <div className="flex items-start space-x-4">
                   {favorite.profile?.photo ? (
                     <div className="relative w-20 h-20 rounded-ios overflow-hidden">

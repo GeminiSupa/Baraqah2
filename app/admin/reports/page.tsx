@@ -126,14 +126,14 @@ export default function AdminReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <Link href="/admin" className="text-primary-600 hover:text-primary-700 mb-4 inline-block">
+        <div className="mb-8">
+          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
             ← Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Reports Management</h1>
-          <p className="text-gray-600 mt-2">Review user reports and take appropriate action</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Reports Management</h1>
+          <p className="text-base text-gray-600">Review user reports and take appropriate action</p>
         </div>
 
         {error && (

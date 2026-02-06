@@ -91,60 +91,60 @@ export default function AdminDashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage the platform and moderate content</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <p className="text-base text-gray-600">Manage the platform and moderate content</p>
         </div>
 
         {/* Quick Stats */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                <div className="flex-shrink-0 bg-blue-100 rounded-2xl p-3">
                   <span className="text-2xl">🆔</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Pending Verifications</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.pendingVerifications}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.pendingVerifications}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                <div className="flex-shrink-0 bg-purple-100 rounded-2xl p-3">
                   <span className="text-2xl">📝</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Pending Profiles</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.pendingProfiles}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.pendingProfiles}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-red-100 rounded-md p-3">
+                <div className="flex-shrink-0 bg-red-100 rounded-2xl p-3">
                   <span className="text-2xl">🚨</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Pending Reports</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.pendingReports}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.pendingReports}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-100 rounded-md p-3">
+                <div className="flex-shrink-0 bg-green-100 rounded-2xl p-3">
                   <span className="text-2xl">👥</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Total Users</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.totalUsers}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
                 </div>
               </div>
             </div>
@@ -152,28 +152,28 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Admin Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {adminSections.map((section) => (
             <Link
               key={section.href}
               href={section.href}
-              className="block bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6"
+              className="block bg-white rounded-3xl shadow-xl border border-gray-100/50 hover:shadow-2xl transition-all p-6"
             >
               <div className="flex items-start">
-                <div className={`flex-shrink-0 bg-${section.color}-100 rounded-lg p-4`}>
+                <div className={`flex-shrink-0 bg-${section.color}-100 rounded-2xl p-4`}>
                   <span className="text-3xl">{section.icon}</span>
                 </div>
                 <div className="ml-4 flex-1">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold text-gray-900">{section.title}</h3>
                     {section.count > 0 && (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${section.color}-100 text-${section.color}-800`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${section.color}-100 text-${section.color}-800`}>
                         {section.count}
                       </span>
                     )}
                   </div>
                   <p className="text-sm text-gray-600 mt-2">{section.description}</p>
-                  <div className="mt-4 text-sm text-primary-600 font-medium">
+                  <div className="mt-4 text-sm text-iosBlue font-semibold">
                     Manage →
                   </div>
                 </div>
@@ -183,9 +183,9 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Admin Notice */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-2">Admin Guidelines</h3>
-          <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+        <div className="bg-blue-50 border border-blue-200 rounded-3xl p-6">
+          <h3 className="font-semibold text-blue-900 mb-3 text-lg">Admin Guidelines</h3>
+          <ul className="text-sm text-blue-800 space-y-2 list-disc list-inside">
             <li>Review all verifications and profiles carefully before approval</li>
             <li>Take appropriate action on user reports within 24 hours</li>
             <li>Maintain user privacy and handle sensitive data securely</li>

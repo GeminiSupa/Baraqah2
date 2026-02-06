@@ -11,15 +11,15 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Card({ variant = 'default', className, children, ...props }: CardProps) {
   const variants = {
-    default: 'bg-white shadow-ios',
-    elevated: 'bg-white shadow-ios-lg',
-    outlined: 'bg-white border border-iosGray-4',
+    default: 'bg-white shadow-xl border border-gray-100/50',
+    elevated: 'bg-white shadow-2xl border border-gray-100/50',
+    outlined: 'bg-white border-2 border-gray-200',
   }
   
   return (
     <div
       className={cn(
-        'rounded-ios-lg p-6',
+        'rounded-3xl p-6 md:p-8',
         variants[variant],
         className
       )}

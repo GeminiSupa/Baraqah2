@@ -91,11 +91,11 @@ export default function CreateProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Create Your Profile</h1>
-          <p className="text-gray-600 mb-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Create Your Profile</h1>
+          <p className="text-base text-gray-600 mb-6">
             Build your matrimony profile. Photos are optional - you can add them later.
           </p>
 
@@ -422,7 +422,7 @@ export default function CreateProfilePage() {
                     value={formData.workLifeBalance}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Especially relevant if you're in Germany/Europe — discuss career vs. family priorities..."
+                    placeholder="Especially relevant if you&apos;re in Germany/Europe — discuss career vs. family priorities..."
                   />
                 </div>
 

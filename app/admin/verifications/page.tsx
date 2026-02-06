@@ -93,14 +93,14 @@ export default function AdminVerificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <Link href="/admin" className="text-primary-600 hover:text-primary-700 mb-4 inline-block">
+        <div className="mb-8">
+          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
             ← Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">ID Verification Management</h1>
-          <p className="text-gray-600 mt-2">Review and approve ID document verifications</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">ID Verification Management</h1>
+          <p className="text-base text-gray-600">Review and approve ID document verifications</p>
         </div>
 
         {error && (
@@ -115,7 +115,7 @@ export default function AdminVerificationsPage() {
           </div>
         )}
 
-        <div className="bg-white shadow rounded-lg p-8">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
             Pending ID Verifications ({users.length})
           </h2>

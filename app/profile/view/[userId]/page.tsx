@@ -94,7 +94,7 @@ export default function ProfileViewPage() {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-iosBg-secondary py-8 px-4 safe-top safe-bottom">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom relative">
         <div className="max-w-2xl mx-auto">
           <Card className="p-6">
             <div className="text-center">
@@ -120,7 +120,7 @@ export default function ProfileViewPage() {
   const otherPhotos = profile.photos.filter(p => p.id !== primaryPhoto?.id)
 
   return (
-    <div className="min-h-screen bg-iosBg-secondary safe-top safe-bottom pb-20 md:pb-8 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-20 md:pb-10 relative">
       <AnimatedBackground intensity="subtle" />
       {/* Header with Back Button */}
       <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-ios border-b border-iosGray-4 safe-top">
@@ -134,16 +134,16 @@ export default function ProfileViewPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-ios-title3 font-semibold text-gray-900 flex-1">Profile</h1>
+          <h1 className="text-xl font-semibold text-gray-900 flex-1">Profile</h1>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 relative z-10">
-        <Card className="overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
           {/* Profile Header */}
           <div className="relative">
             {primaryPhoto && (
-              <div className="w-full h-64 md:h-80 bg-iosGray-5 relative overflow-hidden">
+              <div className="w-full h-64 md:h-80 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                 <OptimizedImage
                   src={primaryPhoto.url}
                   alt={`${profile.firstName} ${profile.lastName}`}
@@ -151,15 +151,16 @@ export default function ProfileViewPage() {
                   className="object-cover"
                   priority
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               </div>
             )}
-            <div className="p-4 md:p-6">
+            <div className="p-6 md:p-8">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h2 className="text-ios-title1 font-bold text-gray-900 mb-1">
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                     {profile.firstName} {profile.lastName}
                   </h2>
-                  <p className="text-ios-body text-iosGray-1">
+                  <p className="text-base text-gray-600 font-medium">
                     {profile.age} years old{profile.city ? ` • ${profile.city}` : ''}
                   </p>
                 </div>
@@ -315,7 +316,7 @@ export default function ProfileViewPage() {
               )}
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   )

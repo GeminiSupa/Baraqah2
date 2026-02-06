@@ -92,7 +92,7 @@ export default function IDVerificationPage() {
 
   if (idVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6">
         <div className="max-w-md w-full text-center">
           <div className="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-lg">
             <h2 className="text-xl font-semibold mb-2">ID Verified</h2>
@@ -110,23 +110,23 @@ export default function IDVerificationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white shadow rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Identity Verification</h1>
-          <p className="text-gray-600 mb-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Identity Verification</h1>
+          <p className="text-base text-gray-600 mb-6">
             To ensure the safety and authenticity of our matrimony platform, please upload a
             government-issued ID document (passport, national ID, driver&apos;s license, etc.) for verification.
           </p>
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-4">
               ID document uploaded successfully. Your document is under review and you will be notified once verified.
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
               {error}
             </div>
           )}
@@ -150,7 +150,7 @@ export default function IDVerificationPage() {
               </p>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded text-sm">
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-xl text-sm">
               <strong>Privacy Notice:</strong> Your ID document will be securely stored and only used for
               verification purposes. Once verified, access to the document is restricted to administrators only.
             </div>
@@ -159,7 +159,7 @@ export default function IDVerificationPage() {
               <button
                 type="submit"
                 disabled={uploading || !file}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-semibold text-white bg-iosBlue hover:bg-iosBlue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iosBlue disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {uploading ? 'Uploading...' : 'Upload Document'}
               </button>

@@ -16,11 +16,12 @@ export function Header() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [userName, setUserName] = useState<string | null>(null)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   const isActive = (path: string) => pathname === path
 
-  // Fetch user name
+  // Fetch user profile data including photo
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
       fetch('/api/profile')
@@ -29,6 +30,14 @@ export function Header() {
           if (data.profile) {
             const name = `${data.profile.firstName || ''} ${data.profile.lastName || ''}`.trim()
             if (name) setUserName(name)
+            
+            // Get primary photo or first photo
+            if (data.profile.photos && data.profile.photos.length > 0) {
+              const primaryPhoto = data.profile.photos.find((p: any) => p.isPrimary) || data.profile.photos[0]
+              if (primaryPhoto?.url) {
+                setProfilePhoto(primaryPhoto.url)
+              }
+            }
           }
         })
         .catch(() => {})
@@ -36,6 +45,7 @@ export function Header() {
   }, [status, session?.user?.id])
 
   const displayName = userName || session?.user?.email || 'User'
+  const userInitial = displayName.charAt(0).toUpperCase()
 
   // Don't show header on auth pages
   if (pathname?.startsWith('/login') || pathname?.startsWith('/register') || pathname?.startsWith('/verify')) {
@@ -75,12 +85,24 @@ export function Header() {
                 <div className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-2 px-2 py-2 hover:bg-iosGray-6 rounded-ios ios-press"
+                    className="flex items-center space-x-2 px-2 py-2 hover:bg-iosGray-6 rounded-ios ios-press transition-colors"
                   >
-                    <div className="w-8 h-8 bg-iosBlue rounded-ios-full flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold">
-                        {displayName.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
+                      {profilePhoto ? (
+                        <Image
+                          src={profilePhoto}
+                          alt={displayName}
+                          fill
+                          className="object-cover"
+                          sizes="36px"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-iosBlue flex items-center justify-center">
+                          <span className="text-white text-xs sm:text-sm font-semibold">
+                            {userInitial}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <span className="hidden lg:inline text-ios-body font-medium text-gray-900 max-w-[120px] truncate">
                       {displayName}
@@ -110,6 +132,13 @@ export function Header() {
                           onClick={() => setShowUserMenu(false)}
                         >
                           Privacy Settings
+                        </Link>
+                        <Link
+                          href="/settings/password"
+                          className="block px-4 py-2 text-ios-body text-gray-900 hover:bg-iosGray-6"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Change Password
                         </Link>
                         <hr className="my-2 border-iosGray-4" />
                         <button

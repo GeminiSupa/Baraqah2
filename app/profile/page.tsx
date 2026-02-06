@@ -86,17 +86,17 @@ export default function ProfilePage() {
   const completeness = calculateProfileCompleteness(profile)
 
   return (
-    <div className="min-h-screen bg-iosBg-secondary py-4 md:py-8 px-4 safe-top safe-bottom pb-20 md:pb-8 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-20 md:pb-10 relative">
       <AnimatedBackground intensity="subtle" />
       <div className="relative z-10">
       <div className="max-w-4xl mx-auto">
         {/* Profile Completeness */}
         {completeness.percentage < 100 && (
-          <Card className="mb-6">
+          <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-ios-title3 font-semibold text-gray-900">Profile Completeness</h2>
-                <p className="text-ios-subhead text-iosGray-1 mt-1">
+                <h2 className="text-xl font-semibold text-gray-900">Profile Completeness</h2>
+                <p className="text-sm text-gray-600 mt-1">
                   Complete your profile to get better matches
                 </p>
               </div>
@@ -104,18 +104,18 @@ export default function ProfilePage() {
                 {completeness.percentage}%
               </Badge>
             </div>
-            <div className="w-full bg-iosGray-5 rounded-ios-full h-2 mb-4">
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
               <div
-                className="h-2 rounded-ios-full transition-all duration-300"
+                className="h-3 rounded-full transition-all duration-300"
                 style={{
                   width: `${completeness.percentage}%`,
-                  backgroundColor: completeness.percentage >= 80 ? '#34C759' : completeness.percentage >= 50 ? '#FF9500' : '#FF3B30',
+                  backgroundColor: completeness.percentage >= 80 ? '#10b981' : completeness.percentage >= 50 ? '#f59e0b' : '#ef4444',
                 }}
               />
             </div>
             {completeness.missingFields.length > 0 && (
               <div>
-                <p className="text-ios-footnote text-iosGray-1 mb-2">Missing fields:</p>
+                <p className="text-sm text-gray-600 mb-2">Missing fields:</p>
                 <div className="flex flex-wrap gap-2">
                   {completeness.missingFields.slice(0, 5).map((field) => (
                     <Badge key={field} variant="default" size="sm">
@@ -129,7 +129,7 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <Link href="/profile/edit" className="mt-4 inline-block">
-                  <Button variant="primary" size="sm">
+                  <Button variant="primary" size="sm" className="font-semibold">
                     Complete Profile
                   </Button>
                 </Link>
@@ -138,103 +138,105 @@ export default function ProfilePage() {
           </Card>
         )}
 
-        <Card className="overflow-hidden">
+        {/* Elegant Profile Card */}
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
           {/* Profile header with banner photo */}
           <div className="relative">
             {primaryPhoto && (
-              <div className="w-full h-56 md:h-64 bg-iosGray-5 relative overflow-hidden">
+              <div className="w-full h-64 md:h-80 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                 <OptimizedImage
                   src={primaryPhoto.url}
                   alt={`${profile.firstName} ${profile.lastName}`}
                   fill
                   className="object-cover"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               </div>
             )}
-            <div className="p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-3">
+            <div className="p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                 <div className="flex-1">
-                  <h1 className="text-ios-title1 font-bold text-gray-900 mb-1">
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                     {profile.firstName} {profile.lastName}
                   </h1>
-                  <p className="text-ios-body text-iosGray-1">
+                  <p className="text-base text-gray-600 font-medium">
                     {profile.age} years old
                     {profile.city ? ` • ${profile.city}` : profile.location ? ` • ${profile.location}` : ''}
                   </p>
                 </div>
                 <Link href="/profile/edit" className="w-full sm:w-auto">
-                  <Button variant="ghost" size="sm" className="w-full sm:w-auto">
+                  <Button variant="ghost" size="md" className="w-full sm:w-auto font-semibold">
                     Edit Profile
                   </Button>
                 </Link>
               </div>
 
-              {/* Quick info chips */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              {/* Quick info chips - More Elegant */}
+              <div className="flex flex-wrap gap-2 mb-6">
                 {profile.profession && (
-                  <Badge variant="default" size="sm">
-                    {profile.profession}
-                  </Badge>
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium border border-blue-100">
+                    💼 {profile.profession}
+                  </span>
                 )}
                 {profile.education && (
-                  <Badge variant="default" size="sm">
-                    {profile.education}
-                  </Badge>
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-sm font-medium border border-purple-100">
+                    🎓 {profile.education}
+                  </span>
                 )}
                 {profile.sectPreference && (
-                  <Badge variant="default" size="sm">
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-green-50 text-green-700 text-sm font-medium border border-green-100">
                     {profile.sectPreference.replace('-', ' ')}
-                  </Badge>
+                  </span>
                 )}
               </div>
 
               {/* About */}
               {profile.bio && (
                 <div className="mb-6">
-                  <h2 className="text-ios-title3 font-semibold text-gray-900 mb-2">About Me</h2>
-                  <p className="text-ios-body text-gray-700 leading-relaxed">{profile.bio}</p>
+                  <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">About Me</h2>
+                  <p className="text-base text-gray-700 leading-relaxed">{profile.bio}</p>
                 </div>
               )}
 
               {/* Details grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
                 {profile.location && (
-                  <div>
-                    <p className="text-ios-footnote font-medium text-iosGray-1 mb-1">Location</p>
-                    <p className="text-ios-body text-gray-900">{profile.location}</p>
+                  <div className="p-4 bg-gray-50 rounded-2xl">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Location</p>
+                    <p className="text-base text-gray-900 font-medium">{profile.location}</p>
                   </div>
                 )}
                 {profile.prayerPractice && (
-                  <div>
-                    <p className="text-ios-footnote font-medium text-iosGray-1 mb-1">Prayer Practice</p>
-                    <p className="text-ios-body text-gray-900 capitalize">
+                  <div className="p-4 bg-gray-50 rounded-2xl">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Prayer Practice</p>
+                    <p className="text-base text-gray-900 font-medium capitalize">
                       {profile.prayerPractice.replace('-', ' ')}
                     </p>
                   </div>
                 )}
                 {profile.hijabPreference && (
-                  <div>
-                    <p className="text-ios-footnote font-medium text-iosGray-1 mb-1">Hijab Preference</p>
-                    <p className="text-ios-body text-gray-900 capitalize">
+                  <div className="p-4 bg-gray-50 rounded-2xl">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Hijab Preference</p>
+                    <p className="text-base text-gray-900 font-medium capitalize">
                       {profile.hijabPreference.replace('-', ' ')}
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-iosGray-4 flex justify-between items-center gap-3 flex-col sm:flex-row">
-                <p className="text-ios-footnote text-iosGray-1">
+              <div className="pt-6 border-t border-gray-200 flex justify-between items-center gap-3 flex-col sm:flex-row">
+                <p className="text-sm text-gray-600">
                   Control who can see your photos and profile details.
                 </p>
                 <Link href="/settings/privacy">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="font-semibold">
                     Privacy Settings
                   </Button>
                 </Link>
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
       </div>
     </div>

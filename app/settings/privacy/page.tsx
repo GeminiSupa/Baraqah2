@@ -133,14 +133,15 @@ export default function PrivacySettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-iosBg-secondary py-8 px-4 safe-top safe-bottom">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <Link href="/profile" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom relative">
+      <AnimatedBackground intensity="subtle" />
+      <div className="max-w-3xl mx-auto relative z-10">
+        <div className="mb-8">
+          <Link href="/profile" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
             ← Back to Profile
           </Link>
-          <h1 className="text-ios-title1 font-bold text-gray-900">Privacy Settings</h1>
-          <p className="text-ios-body text-iosGray-1 mt-2">Control who can see your profile and information</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Privacy Settings</h1>
+          <p className="text-base text-gray-600">Control who can see your profile and information</p>
         </div>
 
         {error && (
@@ -156,8 +157,8 @@ export default function PrivacySettingsPage() {
         )}
 
         {/* Profile Visibility */}
-        <Card className="mb-6">
-          <h2 className="text-ios-title3 font-semibold text-gray-900 mb-4">Profile Visibility</h2>
+        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Profile Visibility</h2>
           <Select
             label="Who can see your profile?"
             value={settings.profileVisibility}
@@ -171,8 +172,8 @@ export default function PrivacySettingsPage() {
         </Card>
 
         {/* Photo Privacy */}
-        <Card className="mb-6">
-          <h2 className="text-ios-title3 font-semibold text-gray-900 mb-4">Photo Privacy</h2>
+        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Photo Privacy</h2>
           <Select
             label="Who can see your photos?"
             value={settings.photoPrivacy}
@@ -186,8 +187,8 @@ export default function PrivacySettingsPage() {
         </Card>
 
         {/* Questionnaire Privacy */}
-        <Card className="mb-6">
-          <h2 className="text-ios-title3 font-semibold text-gray-900 mb-4">Questionnaire Privacy</h2>
+        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Questionnaire Privacy</h2>
           <Select
             label="Who can see your questionnaire answers?"
             value={settings.questionnairePrivacy}
@@ -201,18 +202,18 @@ export default function PrivacySettingsPage() {
         </Card>
 
         {/* Other Settings */}
-        <Card className="mb-6">
-          <h2 className="text-ios-title3 font-semibold text-gray-900 mb-4">Other Settings</h2>
+        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Other Settings</h2>
           <div className="space-y-4">
             <Switch
               label="Hide from search"
-              description="Your profile won't appear in browse or search results"
+              description="Your profile won&apos;t appear in browse or search results"
               checked={settings.hideFromSearch}
               onChange={(e) => setSettings({ ...settings, hideFromSearch: e.target.checked })}
             />
             <Switch
               label="Show online status"
-              description="Let others see when you're online"
+              description="Let others see when you&apos;re online"
               checked={settings.showOnlineStatus}
               onChange={(e) => setSettings({ ...settings, showOnlineStatus: e.target.checked })}
             />
@@ -220,8 +221,8 @@ export default function PrivacySettingsPage() {
         </Card>
 
         {/* Blocked Users */}
-        <Card className="mb-6">
-          <h2 className="text-ios-title3 font-semibold text-gray-900 mb-4">Blocked Users</h2>
+        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Blocked Users</h2>
           {blockedUsers.length === 0 ? (
             <p className="text-ios-body text-iosGray-1">No blocked users</p>
           ) : (

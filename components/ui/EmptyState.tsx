@@ -64,7 +64,7 @@ export function EmptyMessages() {
         </svg>
       }
       title="No messages yet"
-      description="Start a conversation by sending a connection request to someone you're interested in."
+      description="Start a conversation by sending a connection request to someone you&apos;re interested in."
       action={
         <Link href="/browse">
           <Button>Browse Profiles</Button>
@@ -83,7 +83,7 @@ export function EmptyFavorites() {
         </svg>
       }
       title="No favorites yet"
-      description="Save profiles you're interested in by tapping the heart icon."
+      description="Save profiles you&apos;re interested in by tapping the heart icon."
       action={
         <Link href="/browse">
           <Button>Browse Profiles</Button>

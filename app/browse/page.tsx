@@ -177,28 +177,29 @@ export default function BrowsePage() {
   }
 
   return (
-    <div className="min-h-screen bg-iosBg-secondary py-4 md:py-8 px-4 safe-top safe-bottom pb-20 md:pb-8 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-20 md:pb-10 relative">
       <AnimatedBackground intensity="subtle" />
       <div className="max-w-6xl mx-auto relative z-10">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-          <div>
-            <h1 className="text-ios-title1 font-bold text-gray-900">Browse Profiles</h1>
-            <p className="text-ios-body text-iosGray-1 mt-2">Find your perfect match</p>
+        {/* Header Section - Better Spacing & Alignment */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Browse Profiles</h1>
+            <p className="text-base text-gray-500 font-medium">Find your perfect match</p>
           </div>
           <Button
             variant="secondary"
             onClick={() => setShowFilters(!showFilters)}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto px-6 py-2.5 font-semibold"
           >
             {showFilters ? 'Hide' : 'Show'} Filters
           </Button>
         </div>
 
-        {/* Advanced Filters */}
+        {/* Advanced Filters - Better Design */}
         {showFilters && (
-          <Card className="mb-6">
-            <h2 className="text-ios-title3 font-semibold text-gray-900 mb-4">Advanced Filters</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="mb-8 shadow-lg border border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Advanced Filters</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               <Select
                 label="Gender"
                 value={filters.gender}
@@ -276,127 +277,156 @@ export default function BrowsePage() {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button variant="primary" onClick={handleApplyFilters} className="flex-1 sm:flex-none">
+            <div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-100">
+              <Button variant="primary" onClick={handleApplyFilters} className="flex-1 sm:flex-none font-semibold">
                 Apply Filters
               </Button>
-              <Button variant="ghost" onClick={handleClearFilters} className="flex-1 sm:flex-none">
+              <Button variant="ghost" onClick={handleClearFilters} className="flex-1 sm:flex-none font-medium">
                 Clear All
               </Button>
             </div>
           </Card>
         )}
 
-        {/* Tinder-style Single Profile Card */}
-        <div className="flex flex-col items-center justify-center mt-4">
+        {/* Elegant Profile Card - Redesigned */}
+        <div className="flex flex-col items-center justify-center mt-8 md:mt-12">
           {profiles.length > 0 ? (
             (() => {
               const profile = profiles[currentIndex]
               const primaryPhoto = profile.photos.find(p => p.isPrimary) || profile.photos[0]
               return (
-                <div className="w-full max-w-md">
-                  <Card className="overflow-hidden shadow-ios-xl rounded-ios-2xl bg-white/95">
+                <div className="w-full max-w-lg mx-auto">
+                  {/* Profile Counter - Elegant Top Badge */}
+                  <div className="flex justify-center mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-gray-100">
+                      <span className="text-xs font-medium text-gray-600">
+                        Profile {currentIndex + 1} of {profiles.length}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Main Card - Soft, Elegant Design */}
+                  <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100/50">
+                    {/* Photo Section - Better Proportions */}
                     {primaryPhoto && (
-                      <div className="relative w-full h-80 bg-iosGray-5 overflow-hidden">
+                      <div className="relative w-full aspect-[4/5] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                         <OptimizedImage
                           src={primaryPhoto.url}
                           alt={`${profile.firstName} ${profile.lastName}`}
                           fill
                           className="object-cover"
                         />
+                        {/* Gradient Overlay for Better Text Readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
                       </div>
                     )}
-                    <div className="p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-ios-title2 font-semibold text-gray-900">
-                            {profile.firstName} {profile.lastName}
-                          </h3>
-                          <p className="text-ios-subhead text-iosGray-1">
-                            {profile.age} • {profile.gender}
-                            {profile.city && ` • ${profile.city}`}
-                          </p>
-                        </div>
-                        <div className="text-right text-xs text-iosGray-1">
-                          {currentIndex + 1} / {profiles.length}
-                        </div>
+
+                    {/* Content Section - Better Spacing & Typography */}
+                    <div className="px-6 py-6 space-y-4">
+                      {/* Name & Basic Info - Better Hierarchy */}
+                      <div className="space-y-1">
+                        <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
+                          {profile.firstName} {profile.lastName}
+                        </h3>
+                        <p className="text-sm text-gray-500 font-medium">
+                          {profile.age} years old • {profile.gender}
+                          {profile.city && ` • ${profile.city}`}
+                        </p>
                       </div>
 
+                      {/* Bio - Better Readability */}
                       {profile.bio && (
-                        <p className="text-ios-body text-gray-700 line-clamp-3">{profile.bio}</p>
+                        <p className="text-base text-gray-700 leading-relaxed line-clamp-3">
+                          {profile.bio}
+                        </p>
                       )}
 
-                      <div className="flex flex-wrap gap-2">
-                        {profile.profession && (
-                          <span className="inline-flex items-center rounded-full bg-iosGray-5 px-3 py-1 text-xs text-gray-800">
-                            {profile.profession}
-                          </span>
-                        )}
-                        {profile.education && (
-                          <span className="inline-flex items-center rounded-full bg-iosGray-5 px-3 py-1 text-xs text-gray-800">
-                            {profile.education}
-                          </span>
-                        )}
-                      </div>
+                      {/* Tags - More Elegant Design */}
+                      {(profile.profession || profile.education) && (
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {profile.profession && (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium border border-blue-100">
+                              💼 {profile.profession}
+                            </span>
+                          )}
+                          {profile.education && (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-sm font-medium border border-purple-100">
+                              🎓 {profile.education}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        <button
-                          type="button"
-                          onClick={handlePrevProfile}
-                          className="h-11 w-11 rounded-full border border-iosGray-4 flex items-center justify-center bg-white ios-press text-iosGray-1"
-                          aria-label="Previous profile"
-                        >
-                          ‹
-                        </button>
+                      {/* Action Buttons - Proportional to Card Width */}
+                      <div className="pt-4 space-y-3">
+                        {/* Primary Actions - Centered & Balanced */}
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <button
+                            type="button"
+                            onClick={handlePrevProfile}
+                            className="h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 rounded-full border-2 border-gray-200 flex items-center justify-center bg-white hover:bg-gray-50 ios-press text-gray-600 transition-all shadow-sm"
+                            aria-label="Previous profile"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
 
-                        <div className="flex-1 flex items-center justify-center gap-3">
                           <Button
                             variant="secondary"
-                            size="sm"
-                            fullWidth
+                            size="md"
                             onClick={handleNextProfile}
-                            className="max-w-[140px] bg-red-50 text-red-600 border border-red-100 hover:bg-red-100"
+                            className="flex-1 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 font-semibold"
                           >
                             Skip
                           </Button>
+                          
                           <Button
                             variant="primary"
-                            size="sm"
-                            fullWidth
+                            size="md"
                             onClick={() => {
                               setSelectedProfile(profile)
                               setShowRequestModal(true)
                             }}
-                            className="max-w-[140px]"
+                            className="flex-1 font-semibold shadow-md"
                           >
                             Like & Request
                           </Button>
+
+                          <button
+                            type="button"
+                            onClick={handleNextProfile}
+                            className="h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 rounded-full border-2 border-gray-200 flex items-center justify-center bg-white hover:bg-gray-50 ios-press text-gray-600 transition-all shadow-sm"
+                            aria-label="Next profile"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={handleNextProfile}
-                          className="h-11 w-11 rounded-full border border-iosGray-4 flex items-center justify-center bg-white ios-press text-iosGray-1"
-                          aria-label="Next profile"
-                        >
-                          ›
-                        </button>
-                      </div>
-
-                      <div className="mt-3 flex items-center justify-between text-xs text-iosGray-1">
-                        <Link href={`/profile/view/${profile.userId}`} className="text-iosBlue font-medium">
-                          View full profile
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleFavorite(profile.userId)}
-                          className="text-sm"
-                        >
-                          ♡ Add to favourites
-                        </button>
+                        {/* Secondary Actions - Better Alignment */}
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                          <Link 
+                            href={`/profile/view/${profile.userId}`} 
+                            className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                          >
+                            View full profile →
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleFavorite(profile.userId)}
+                            className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-red-500 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            Add to favourites
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </div>
               )
             })()

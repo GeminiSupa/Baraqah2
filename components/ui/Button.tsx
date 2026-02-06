@@ -20,19 +20,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     children,
     ...props 
   }, ref) => {
-    const baseStyles = 'ios-press touch-target font-ios-headline rounded-ios transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-iosBlue focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed'
+    const baseStyles = 'ios-press touch-target font-semibold rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-iosBlue focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg'
     
     const variants = {
       primary: 'bg-iosBlue text-white hover:bg-iosBlue-dark focus-visible:ring-iosBlue',
-      secondary: 'bg-iosGray-5 text-gray-900 hover:bg-iosGray-4 focus-visible:ring-iosGray-3',
-      danger: 'bg-iosRed text-white hover:bg-iosRed-dark focus-visible:ring-iosRed',
-      ghost: 'bg-transparent text-iosBlue hover:bg-iosGray-6 focus-visible:ring-iosBlue',
+      secondary: 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 focus-visible:ring-gray-300',
+      danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
+      ghost: 'bg-transparent text-iosBlue hover:bg-gray-100 focus-visible:ring-iosBlue shadow-none hover:shadow-none',
     }
     
     const sizes = {
-      sm: 'px-4 py-2 text-ios-subhead',
-      md: 'px-6 py-3 text-ios-body',
-      lg: 'px-8 py-4 text-ios-title3',
+      sm: 'px-4 py-2 text-sm',
+      md: 'px-6 py-3 text-base',
+      lg: 'px-8 py-4 text-lg',
     }
     
     return (

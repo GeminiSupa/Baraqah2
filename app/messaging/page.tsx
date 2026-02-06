@@ -114,30 +114,34 @@ export default function MessagingPage() {
   const approvedRequests = requests.filter(r => r.status === 'approved')
 
   return (
-    <div className="min-h-screen bg-iosBg-secondary py-4 md:py-8 px-4 safe-top safe-bottom pb-20 md:pb-8 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-20 md:pb-10 relative">
       <AnimatedBackground intensity="subtle" />
       <div className="relative z-10">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-ios-xl shadow-ios-lg p-6 md:p-8 mb-6">
-          <h1 className="text-ios-title1 font-bold text-gray-900 mb-6">Messages</h1>
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Messages</h1>
+          <p className="text-base text-gray-600">Manage your message requests and conversations</p>
+        </div>
+        
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8 mb-6">
 
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
             <button
               onClick={() => setRequestType('received')}
-              className={`px-6 py-3 rounded-ios-lg font-semibold text-ios-body transition-all ios-press ${
+              className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ios-press ${
                 requestType === 'received'
-                  ? 'bg-iosBlue text-white shadow-ios'
-                  : 'bg-iosGray-6 text-iosGray-1 hover:bg-iosGray-5'
+                  ? 'bg-iosBlue text-white shadow-md'
+                  : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
               }`}
             >
               Received Requests
             </button>
             <button
               onClick={() => setRequestType('sent')}
-              className={`px-6 py-3 rounded-ios-lg font-semibold text-ios-body transition-all ios-press ${
+              className={`px-6 py-3 rounded-xl font-semibold text-base transition-all ios-press ${
                 requestType === 'sent'
-                  ? 'bg-iosBlue text-white shadow-ios'
-                  : 'bg-iosGray-6 text-iosGray-1 hover:bg-iosGray-5'
+                  ? 'bg-iosBlue text-white shadow-md'
+                  : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
               }`}
             >
               Sent Requests
@@ -146,38 +150,38 @@ export default function MessagingPage() {
 
           {requestType === 'received' && pendingRequests.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-ios-title2 font-semibold text-gray-900 mb-6">Pending Requests</h2>
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Pending Requests</h2>
               <div className="space-y-4">
                 {pendingRequests.map((request) => (
-                  <div key={request.id} className="bg-iosBg-secondary border border-iosGray-4 rounded-ios-xl p-5 shadow-ios">
+                  <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="text-ios-headline font-semibold text-gray-900 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           {request.sender?.profile?.firstName} {request.sender?.profile?.lastName}
                         </h3>
                         {request.message && (
-                          <p className="text-ios-body text-iosGray-1 mt-2 mb-2">{request.message}</p>
+                          <p className="text-base text-gray-600 mt-2 mb-2">{request.message}</p>
                         )}
-                        <p className="text-ios-footnote text-iosGray-2">
+                        <p className="text-sm text-gray-500">
                           {new Date(request.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <Link
                           href={`/messaging/request/${request.id}`}
-                          className="px-5 py-2.5 bg-iosBlue text-white rounded-ios-lg hover:bg-iosBlue-dark text-ios-body font-medium ios-press text-center"
+                          className="px-5 py-2.5 bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md"
                         >
                           View Profile
                         </Link>
                         <button
                           onClick={() => handleApprove(request.id)}
-                          className="px-5 py-2.5 bg-iosGreen text-white rounded-ios-lg hover:bg-iosGreen-dark text-ios-body font-medium ios-press"
+                          className="px-5 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 text-base font-semibold ios-press shadow-md"
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => handleReject(request.id)}
-                          className="px-5 py-2.5 bg-iosRed text-white rounded-ios-lg hover:bg-iosRed-dark text-ios-body font-medium ios-press"
+                          className="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 text-base font-semibold ios-press shadow-md"
                         >
                           Reject
                         </button>
@@ -190,7 +194,7 @@ export default function MessagingPage() {
           )}
 
           <div>
-            <h2 className="text-ios-title2 font-semibold text-gray-900 mb-6">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">
               {requestType === 'received' ? 'Approved Requests' : 'Your Requests'}
             </h2>
             {approvedRequests.length === 0 ? (
@@ -202,16 +206,16 @@ export default function MessagingPage() {
                   const canMessage = request.connectionStatus === 'connected'
                   
                   return (
-                    <div key={request.id} className="bg-iosBg-secondary border border-iosGray-4 rounded-ios-xl p-5 shadow-ios">
+                    <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex-1">
-                          <h3 className="text-ios-headline font-semibold text-gray-900 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
                             {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
                           </h3>
-                          <p className="text-ios-subhead text-iosGray-1 mb-1">
+                          <p className="text-base text-gray-600 mb-1">
                             Status: <span className="font-medium">{request.connectionStatus.replace('_', ' ').toUpperCase()}</span>
                           </p>
-                          <p className="text-ios-footnote text-iosGray-2">
+                          <p className="text-sm text-gray-500">
                             {new Date(request.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -221,12 +225,12 @@ export default function MessagingPage() {
                             request.connectionStatus === 'questionnaire_completed') && (
                             <Link
                               href={`/messaging/questionnaire/${request.id}`}
-                              className={`px-5 py-2.5 text-white rounded-ios-lg hover:opacity-90 text-ios-body font-medium ios-press text-center ${
+                              className={`px-5 py-2.5 text-white rounded-xl hover:opacity-90 text-base font-semibold ios-press text-center shadow-md ${
                                 request.connectionStatus === 'questionnaire_sent' 
-                                  ? 'bg-iosOrange animate-pulse shadow-ios' 
+                                  ? 'bg-orange-500 animate-pulse' 
                                   : request.connectionStatus === 'questionnaire_completed'
-                                  ? 'bg-iosGreen shadow-ios'
-                                  : 'bg-iosBlue shadow-ios'
+                                  ? 'bg-green-600'
+                                  : 'bg-iosBlue'
                               }`}
                             >
                               {request.connectionStatus === 'questionnaire_sent' 
@@ -239,7 +243,7 @@ export default function MessagingPage() {
                           {canMessage && (
                             <Link
                               href={`/messaging/${otherUser?.id}`}
-                              className="px-5 py-2.5 bg-iosBlue text-white rounded-ios-lg hover:bg-iosBlue-dark text-ios-body font-medium ios-press text-center shadow-ios"
+                              className="px-5 py-2.5 bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md"
                             >
                               Message
                             </Link>

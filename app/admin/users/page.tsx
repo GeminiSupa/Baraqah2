@@ -139,14 +139,14 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <Link href="/admin" className="text-primary-600 hover:text-primary-700 mb-4 inline-block">
+        <div className="mb-8">
+          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
             ← Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">View, search, suspend, and activate user accounts</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">User Management</h1>
+          <p className="text-base text-gray-600">View, search, suspend, and activate user accounts</p>
         </div>
 
         {error && (
@@ -162,7 +162,7 @@ export default function AdminUsersPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
@@ -203,7 +203,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
