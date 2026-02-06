@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
-import { unlink } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
 
 // Route segment config for App Router
 export const runtime = 'nodejs'
@@ -184,11 +181,30 @@ export async function DELETE(
       )
     }
 
-    // Delete physical file
+    // Delete file from Supabase Storage
     try {
-      const filepath = join(process.cwd(), 'public', photo.url)
-      if (existsSync(filepath)) {
-        await unlink(filepath)
+      // Extract file path from URL
+      // URL format: https://[project].supabase.co/storage/v1/object/public/uploads/photos/filename.jpg
+      // We need: photos/filename.jpg
+      let filePath = photo.url
+      
+      // If it's a Supabase Storage URL, extract the path
+      if (photo.url.includes('/storage/v1/object/public/uploads/')) {
+        filePath = photo.url.split('/storage/v1/object/public/uploads/')[1]
+      } else if (photo.url.startsWith('/uploads/')) {
+        // Legacy local path format
+        filePath = photo.url.replace('/uploads/', '')
+      }
+
+      if (filePath) {
+        const { error: storageError } = await supabaseAdmin.storage
+          .from('uploads')
+          .remove([filePath])
+
+        if (storageError) {
+          console.error('Failed to delete file from storage:', storageError)
+          // Continue even if file deletion fails (file might already be deleted)
+        }
       }
     } catch (fileError) {
       console.error('Failed to delete file:', fileError)

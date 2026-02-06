@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
-import { writeFile, mkdir, unlink } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
-import { access, constants } from 'fs/promises'
 
 // Route segment config for App Router
 export const runtime = 'nodejs'
@@ -81,55 +77,44 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'photos')
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
-    // Check if directory is writable
-    try {
-      await access(uploadDir, constants.W_OK)
-    } catch (error) {
-      console.error('Upload directory is not writable:', uploadDir, error)
-      return NextResponse.json(
-        { error: 'Failed to create upload directory' },
-        { status: 500 }
-      )
-    }
-
     // Generate unique filename
     const timestamp = Date.now()
     const extension = file.name.split('.').pop() || 'jpg'
     const filename = `${session.user.id}-${timestamp}.${extension}`
-    const filepath = join(uploadDir, filename)
+    const filePath = `photos/${filename}`
 
-    // Save file
-    try {
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      await writeFile(filepath, buffer)
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Photo uploaded successfully:', filename)
-      }
-    } catch (writeError) {
-      console.error('Failed to write file - Full error:', {
-        error: writeError,
-        message: writeError instanceof Error ? writeError.message : String(writeError),
-        stack: writeError instanceof Error ? writeError.stack : undefined,
-        filepath,
-        uploadDir,
-        dirExists: existsSync(uploadDir),
-        fileSize: file.size,
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from('uploads')
+      .upload(filePath, buffer, {
+        contentType: file.type || 'image/jpeg',
+        upsert: false,
       })
+
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError)
       return NextResponse.json(
         { 
-          error: `Failed to save file: ${writeError instanceof Error ? writeError.message : 'Unknown error'}`,
-          details: process.env.NODE_ENV === 'development' ? String(writeError) : undefined
+          error: 'Failed to upload photo',
+          details: process.env.NODE_ENV === 'development' ? uploadError.message : undefined
         },
         { status: 500 }
       )
+    }
+
+    // Get public URL
+    const { data: urlData } = supabaseAdmin.storage
+      .from('uploads')
+      .getPublicUrl(filePath)
+
+    const photoUrl = urlData.publicUrl
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Photo uploaded successfully to Supabase:', filename)
     }
 
     // If this is primary, unset other primary photos
@@ -142,7 +127,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Create photo record
-    const photoUrl = `/uploads/photos/${filename}`
     const { data: photo, error: insertError } = await supabaseAdmin
       .from('photos')
       .insert({
@@ -156,11 +140,11 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       console.error('Insert error:', insertError)
-      // Try to clean up the uploaded file if database insert fails
+      // Try to clean up the uploaded file from Supabase Storage if database insert fails
       try {
-        if (existsSync(filepath)) {
-          await unlink(filepath)
-        }
+        await supabaseAdmin.storage
+          .from('uploads')
+          .remove([filePath])
       } catch (cleanupError) {
         console.error('Failed to cleanup file after insert error:', cleanupError)
       }
