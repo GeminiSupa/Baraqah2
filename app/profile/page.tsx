@@ -156,19 +156,43 @@ export default function ProfilePage() {
             <div className="p-6 md:p-8">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                 <div className="flex-1">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                    {profile.firstName} {profile.lastName}
-                  </h1>
+                  <div className="flex flex-wrap items-center gap-3 mb-1">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                      {profile.firstName} {profile.lastName}
+                    </h1>
+                    {session?.user?.idVerified ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold border border-green-200">
+                        <span className="mr-1">✓</span> Verified ID
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-xs font-semibold border border-gray-200">
+                        Not verified
+                      </span>
+                    )}
+                  </div>
                   <p className="text-base text-gray-600 font-medium">
                     {profile.age} years old
                     {profile.city ? ` • ${profile.city}` : profile.location ? ` • ${profile.location}` : ''}
                   </p>
                 </div>
-                <Link href="/profile/edit" className="w-full sm:w-auto">
-                  <Button variant="ghost" size="md" className="w-full sm:w-auto font-semibold">
-                    Edit Profile
-                  </Button>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  {!session?.user?.idVerified && (
+                    <Link href="/id-verification" className="w-full sm:w-auto">
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="w-full sm:w-auto font-semibold"
+                      >
+                        Verify my ID
+                      </Button>
+                    </Link>
+                  )}
+                  <Link href="/profile/edit" className="w-full sm:w-auto">
+                    <Button variant="ghost" size="md" className="w-full sm:w-auto font-semibold">
+                      Edit Profile
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
               {/* Quick info chips - More Elegant */}

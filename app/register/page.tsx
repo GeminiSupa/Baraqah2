@@ -18,6 +18,7 @@ export default function RegisterPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
@@ -29,6 +30,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (!acceptedPolicies) {
+      setError('You must accept the Terms of Use and Privacy Policy to create an account.')
+      return
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
@@ -202,7 +208,29 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
+            <label className="flex items-start space-x-2 text-xs text-gray-600">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                checked={acceptedPolicies}
+                onChange={(e) => setAcceptedPolicies(e.target.checked)}
+                required
+              />
+              <span>
+                I have read and agree to the{' '}
+                <Link href="/legal/terms" className="text-primary-600 hover:text-primary-500 underline">
+                  Terms of Use
+                </Link>{' '}
+                and{' '}
+                <Link href="/privacy-policy" className="text-primary-600 hover:text-primary-500 underline">
+                  Privacy Policy
+                </Link>
+                , including how my data and profile information are processed for matchmaking in Europe.
+              </span>
+            </label>
+
+            <div>
             <button
               type="submit"
               disabled={loading}
@@ -210,6 +238,7 @@ export default function RegisterPage() {
             >
               {loading ? 'Creating account...' : 'Register'}
             </button>
+          </div>
           </div>
 
           <div className="text-center text-sm">

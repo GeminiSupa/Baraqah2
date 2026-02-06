@@ -13,5 +13,12 @@ import { SessionProvider } from 'next-auth/react'
  *  2. Replace the SessionProvider-only wrapper below with a ThemeProvider + SessionProvider combo.
  */
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>
+  return (
+    <SessionProvider
+      refetchInterval={5 * 60} // Refetch session every 5 minutes instead of on every request
+      refetchOnWindowFocus={false} // Don't refetch on window focus to reduce API calls
+    >
+      {children}
+    </SessionProvider>
+  )
 }

@@ -25,6 +25,7 @@ interface Profile {
   sectPreference?: string
   prayerPractice?: string
   hijabPreference?: string
+  idVerified?: boolean
   photos: Array<{
     id: string
     url: string
@@ -157,9 +158,20 @@ export default function ProfileViewPage() {
             <div className="p-6 md:p-8">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                    {profile.firstName} {profile.lastName}
-                  </h2>
+                  <div className="flex flex-wrap items-center gap-3 mb-1">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                      {profile.firstName} {profile.lastName}
+                    </h2>
+                    {profile.idVerified ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold border border-green-200">
+                        <span className="mr-1">✓</span> Verified ID
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-xs font-semibold border border-gray-200">
+                        Not verified
+                      </span>
+                    )}
+                  </div>
                   <p className="text-base text-gray-600 font-medium">
                     {profile.age} years old{profile.city ? ` • ${profile.city}` : ''}
                   </p>

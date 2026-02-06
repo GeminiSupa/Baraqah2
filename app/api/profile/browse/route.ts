@@ -155,12 +155,21 @@ export async function GET(req: NextRequest) {
       })
       .map((p: any) => {
         const profile = { ...p }
+        // Attach id_verified from related user for badge display
+        let user
+        if (p.users) {
+          user = Array.isArray(p.users) ? p.users[0] : p.users
+        }
+        const idVerified = user?.id_verified ?? false
         // Filter photos by privacy
         if (profile.photos) {
           profile.photos = profile.photos.filter((photo: any) => photo.privacy === 'public')
         }
         delete profile.users
-        return formatProfile(profile)
+        return {
+          ...formatProfile(profile),
+          idVerified,
+        }
       })
 
     return NextResponse.json({ profiles }, { status: 200 })

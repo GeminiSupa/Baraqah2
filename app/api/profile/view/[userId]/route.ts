@@ -91,10 +91,10 @@ export async function GET(
       )
     }
 
-    // Fetch profile
+    // Fetch profile with related user for ID verification status
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
-      .select('*, photos(*)')
+      .select('*, photos(*), users!profiles_user_id_fkey(id_verified)')
       .eq('user_id', userId)
       .single()
 
@@ -104,8 +104,19 @@ export async function GET(
         { status: 404 }
       )
     }
+    
+    // Extract id_verified from related user (handle array or object)
+    let user
+    if ((profile as any).users) {
+      user = Array.isArray((profile as any).users) ? (profile as any).users[0] : (profile as any).users
+    }
+    const idVerified = user?.id_verified ?? false
+    delete (profile as any).users
 
-    return NextResponse.json({ profile: formatProfile(profile) }, { status: 200 })
+    return NextResponse.json(
+      { profile: { ...formatProfile(profile), idVerified } },
+      { status: 200 }
+    )
   } catch (error) {
     console.error('Profile view error:', error)
     return NextResponse.json(

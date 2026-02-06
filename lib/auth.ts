@@ -82,10 +82,16 @@ export const authOptions: NextAuthOptions = {
         token.idVerified = user.idVerified
         token.profileActive = user.profileActive
         token.isAdmin = user.isAdmin
+        token.lastRefreshed = Date.now()
       }
       
-      // Refresh user data from database on each request (to get latest verification status)
-      if (token.id) {
+      // Only refresh user data from database periodically (every 5 minutes) to avoid excessive DB calls
+      // This prevents "Failed to fetch" errors from timeouts
+      const now = Date.now()
+      const lastRefreshed = (token.lastRefreshed as number) || 0
+      const refreshInterval = 5 * 60 * 1000 // 5 minutes
+      
+      if (token.id && (now - lastRefreshed > refreshInterval || trigger === 'update')) {
         try {
           const { data: currentUser } = await supabaseAdmin
             .from('users')
@@ -99,10 +105,11 @@ export const authOptions: NextAuthOptions = {
             token.idVerified = currentUser.id_verified
             token.profileActive = currentUser.profile_active
             token.isAdmin = currentUser.is_admin || false
+            token.lastRefreshed = now
           }
         } catch (error) {
           console.error('Error refreshing user data in JWT:', error)
-          // Continue with existing token data if refresh fails
+          // Continue with existing token data if refresh fails - don't throw error
         }
       }
       

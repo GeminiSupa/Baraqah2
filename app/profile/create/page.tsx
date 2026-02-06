@@ -42,10 +42,8 @@ export default function CreateProfilePage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
-    } else if (status === 'authenticated' && !session.user.idVerified) {
-      router.push('/id-verification')
     }
-  }, [status, session, router])
+  }, [status, router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({

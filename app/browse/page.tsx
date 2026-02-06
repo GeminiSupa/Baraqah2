@@ -25,6 +25,7 @@ interface Profile {
   profession?: string
   location?: string
   city?: string
+  idVerified?: boolean
   photos: Array<{ url: string; isPrimary: boolean }>
 }
 
@@ -325,9 +326,20 @@ export default function BrowsePage() {
                     <div className="px-6 py-6 space-y-4">
                       {/* Name & Basic Info - Better Hierarchy */}
                       <div className="space-y-1">
-                        <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
-                          {profile.firstName} {profile.lastName}
-                        </h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
+                            {profile.firstName} {profile.lastName}
+                          </h3>
+                          {profile.idVerified ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold border border-green-200">
+                              <span className="mr-1">✓</span> Verified ID
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-50 text-gray-600 text-xs font-medium border border-gray-200">
+                              Not verified
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-500 font-medium">
                           {profile.age} years old • {profile.gender}
                           {profile.city && ` • ${profile.city}`}

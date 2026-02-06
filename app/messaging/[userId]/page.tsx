@@ -32,7 +32,7 @@ export default function ConversationPage() {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
-  const [otherUser, setOtherUser] = useState<{ id: string; email: string; profile?: { firstName: string; lastName: string } } | null>(null)
+  const [otherUser, setOtherUser] = useState<{ id: string; email: string; idVerified?: boolean; profile?: { firstName: string; lastName: string } } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const fetchMessages = useCallback(async () => {
@@ -151,7 +151,18 @@ export default function ConversationPage() {
           {otherUserInitial}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-semibold text-gray-900 truncate">{otherUserName}</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg font-semibold text-gray-900 truncate">{otherUserName}</h1>
+            {otherUser?.idVerified ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
+                ✓ Verified ID
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
+                Not verified
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-500">Active now</p>
         </div>
         <button className="p-2 ios-press rounded-xl text-gray-600 hover:bg-gray-100" aria-label="More options">

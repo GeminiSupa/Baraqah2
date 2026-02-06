@@ -20,6 +20,7 @@ interface MessageRequest {
       firstName: string
       lastName: string
       photos: Array<{ url: string }>
+      idVerified?: boolean
     }
   }
   receiver?: {
@@ -29,6 +30,7 @@ interface MessageRequest {
       firstName: string
       lastName: string
       photos: Array<{ url: string }>
+      idVerified?: boolean
     }
   }
 }
@@ -156,9 +158,22 @@ export default function MessagingPage() {
                   <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {request.sender?.profile?.firstName} {request.sender?.profile?.lastName}
-                        </h3>
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {request.sender?.profile?.firstName} {request.sender?.profile?.lastName}
+                          </h3>
+                          {request.sender?.profile && (
+                            request.sender.profile.idVerified ? (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
+                                ✓ Verified ID
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
+                                Not verified
+                              </span>
+                            )
+                          )}
+                        </div>
                         {request.message && (
                           <p className="text-base text-gray-600 mt-2 mb-2">{request.message}</p>
                         )}
@@ -209,9 +224,22 @@ export default function MessagingPage() {
                     <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                            {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
-                          </h3>
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {otherUser?.profile?.firstName} {otherUser?.profile?.lastName}
+                            </h3>
+                            {otherUser?.profile && (
+                              otherUser.profile.idVerified ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
+                                  ✓ Verified ID
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
+                                  Not verified
+                                </span>
+                              )
+                            )}
+                          </div>
                           <p className="text-base text-gray-600 mb-1">
                             Status: <span className="font-medium">{request.connectionStatus.replace('_', ' ').toUpperCase()}</span>
                           </p>

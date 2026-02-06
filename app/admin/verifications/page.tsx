@@ -100,7 +100,10 @@ export default function AdminVerificationsPage() {
             ← Back to Admin Dashboard
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">ID Verification Management</h1>
-          <p className="text-base text-gray-600">Review and approve ID document verifications</p>
+          <p className="text-base text-gray-600">
+            ID verification is optional for users but highly recommended. Review uploaded documents and approve
+            trusted profiles so they appear with a Verified ID badge across the app.
+          </p>
         </div>
 
         {error && (

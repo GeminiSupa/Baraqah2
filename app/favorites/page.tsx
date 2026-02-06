@@ -22,6 +22,7 @@ interface Favorite {
     gender: string
     city?: string
     photo?: string
+    idVerified?: boolean
   }
   user?: {
     id: string
@@ -117,11 +118,24 @@ export default function FavoritesPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-ios-headline font-semibold text-gray-900 truncate">
-                      {favorite.profile
-                        ? `${favorite.profile.firstName} ${favorite.profile.lastName}`
-                        : favorite.user?.email}
-                    </h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-ios-headline font-semibold text-gray-900 truncate">
+                        {favorite.profile
+                          ? `${favorite.profile.firstName} ${favorite.profile.lastName}`
+                          : favorite.user?.email}
+                      </h3>
+                      {favorite.profile && (
+                        favorite.profile.idVerified ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
+                            ✓ Verified ID
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
+                            Not verified
+                          </span>
+                        )
+                      )}
+                    </div>
                     {favorite.profile && (
                       <p className="text-ios-subhead text-iosGray-1">
                         {favorite.profile.age} years • {favorite.profile.gender}

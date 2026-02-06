@@ -54,12 +54,12 @@ export async function GET(req: NextRequest) {
       // Fetch users
       const { data: users } = await supabaseAdmin
         .from('users')
-        .select('id, email')
+        .select('id, email, id_verified')
         .in('id', userIds)
 
       if (users) {
         users.forEach((u: any) => {
-          usersMap[u.id] = { id: u.id, email: u.email }
+          usersMap[u.id] = { id: u.id, email: u.email, idVerified: u.id_verified }
         })
       }
 
@@ -123,6 +123,7 @@ export async function GET(req: NextRequest) {
             firstName: profile.firstName,
             lastName: profile.lastName,
             photos: photos,
+            idVerified: user?.idVerified ?? false,
           } : null,
         },
       }

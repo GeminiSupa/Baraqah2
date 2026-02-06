@@ -114,7 +114,7 @@ export async function GET(
     
     const { data: otherUser } = await supabaseAdmin
       .from('users')
-      .select('id, email')
+      .select('id, email, id_verified')
       .eq('id', otherUserId)
       .single()
 
@@ -129,6 +129,7 @@ export async function GET(
         otherUserProfile = {
           id: otherUser.id,
           email: otherUser.email,
+          idVerified: otherUser.id_verified ?? false,
           profile: {
             firstName: otherProfile.first_name,
             lastName: otherProfile.last_name,
@@ -138,6 +139,7 @@ export async function GET(
         otherUserProfile = {
           id: otherUser.id,
           email: otherUser.email,
+          idVerified: otherUser.id_verified ?? false,
           profile: null,
         }
       }
