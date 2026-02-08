@@ -131,22 +131,23 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 safe-top pt-4 glass-header shadow-ios">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
+    <header className="sticky top-0 z-50 safe-top pt-3 sm:pt-4 pb-3 sm:pb-4 glass-header shadow-ios">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex justify-between items-center gap-2 sm:gap-4">
           {/* Logo and Brand */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2 px-2 py-2">
-              <div className="relative w-8 h-8 rounded-ios-lg overflow-hidden shadow-ios">
+          <div className="flex items-center flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2 px-1.5 sm:px-2 py-1.5 sm:py-2 ios-press">
+              <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-ios-lg overflow-hidden shadow-ios flex-shrink-0">
                 <Image
                   src="/logo.png"
                   alt="Baraqah logo"
                   fill
                   className="object-contain"
                   priority
+                  sizes="36px"
                 />
               </div>
-              <span className="text-ios-title2 font-bold text-iosBlue hidden sm:inline">Baraqah</span>
+              <span className="text-base sm:text-ios-title2 font-bold text-iosBlue hidden sm:inline">Baraqah</span>
             </Link>
           </div>
 
@@ -156,21 +157,23 @@ export function Header() {
           )}
 
           {/* Right Side - User Menu & Notifications */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             {status === 'authenticated' && (
               <>
                 <NotificationBell />
                 <div className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-2 px-2 py-2 hover:bg-iosGray-6 rounded-ios ios-press transition-colors"
+                    className="flex items-center gap-2 px-1.5 sm:px-2 py-1.5 sm:py-2 hover:bg-iosGray-6 active:bg-iosGray-5 rounded-ios ios-press transition-colors touch-target"
+                    aria-label="User menu"
                   >
-                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0 bg-iosBlue">
+                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 md:w-9 md:h-9 rounded-full overflow-hidden border-2 sm:border-[2.5px] border-gray-300 flex-shrink-0 bg-iosBlue shadow-sm">
                       {profilePhoto ? (
                         <img
                           src={profilePhoto}
                           alt={displayName}
                           className="w-full h-full object-cover"
+                          loading="eager"
                           onError={(e) => {
                             // If image fails to load, fall back to initial
                             console.warn('Failed to load profile photo:', profilePhoto)
@@ -182,13 +185,16 @@ export function Header() {
                             }
                           }}
                           onLoad={() => {
-                            // Image loaded successfully
-                            console.log('Profile photo loaded successfully:', profilePhoto)
+                            // Image loaded successfully - ensure it's visible
+                            const target = e.target as HTMLImageElement
+                            if (target) {
+                              target.style.display = 'block'
+                            }
                           }}
                         />
                       ) : (
                         <div className="w-full h-full bg-iosBlue flex items-center justify-center">
-                          <span className="text-white text-xs sm:text-sm font-semibold">
+                          <span className="text-white text-sm sm:text-base font-semibold">
                             {userInitial}
                           </span>
                         </div>
@@ -197,7 +203,7 @@ export function Header() {
                     <span className="hidden lg:inline text-ios-body font-medium text-gray-900 max-w-[120px] truncate">
                       {displayName}
                     </span>
-                    <svg className="w-4 h-4 text-iosGray-1 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-iosGray-1 hidden lg:block flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>

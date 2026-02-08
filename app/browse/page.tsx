@@ -411,9 +411,10 @@ export default function BrowsePage() {
                               setSelectedProfile(profile)
                               setShowRequestModal(true)
                             }}
-                            className="flex-1 font-semibold shadow-md min-h-[44px] text-sm sm:text-base px-3 sm:px-4"
+                            className="flex-1 font-semibold shadow-md min-h-[44px] text-xs sm:text-sm md:text-base px-2 sm:px-3 md:px-4"
                           >
-                            <span className="truncate">Like & Request</span>
+                            <span className="hidden sm:inline">Like & Request</span>
+                            <span className="sm:hidden">Connect</span>
                           </Button>
 
                           <button
