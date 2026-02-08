@@ -620,21 +620,45 @@ export default function CompatibilityQuestionnairePage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-4 pt-6">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200">
                   <button
                     type="button"
-                    onClick={() => router.back()}
-                    className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    onClick={async () => {
+                      // Skip questionnaire and go directly to messaging
+                      const otherUserId = request?.sender?.id === session?.user?.id 
+                        ? request?.receiver?.id 
+                        : request?.sender?.id
+                      
+                      if (otherUserId) {
+                        // Update connection status to allow messaging
+                        await fetch(`/api/messaging/request/${requestId}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ connectionStatus: 'connected' }),
+                        })
+                        router.push(`/messaging/${otherUserId}`)
+                      }
+                    }}
+                    className="px-6 py-2 text-primary-600 hover:text-primary-700 font-medium text-sm"
                   >
-                    Cancel
+                    Skip & Start Messaging Directly →
                   </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {saving ? 'Saving...' : 'Save & Continue'}
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => router.back()}
+                      className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {saving ? 'Saving...' : 'Save & Continue'}
+                    </button>
+                  </div>
                 </div>
               </form>
             )}
