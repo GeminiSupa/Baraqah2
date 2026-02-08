@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
+import { useTranslation } from '@/components/LanguageProvider'
 
 interface Message {
   id: string
@@ -26,6 +27,7 @@ interface Message {
 export default function ConversationPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const params = useParams()
   const userId = params.userId as string
   const [messages, setMessages] = useState<Message[]>([])
@@ -120,7 +122,7 @@ export default function ConversationPage() {
       <div className="min-h-screen bg-iosBg-secondary flex items-center justify-center safe-top safe-bottom">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-iosBlue mb-4"></div>
-          <p className="text-ios-body text-iosGray-1">Loading conversation...</p>
+          <p className="text-ios-body text-iosGray-1">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -155,15 +157,15 @@ export default function ConversationPage() {
             <h1 className="text-lg font-semibold text-gray-900 truncate">{otherUserName}</h1>
             {otherUser?.idVerified ? (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                ✓ Verified ID
+                ✓ {t('profile.verifiedId')}
               </span>
             ) : (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
-                Not verified
+                {t('profile.notVerified')}
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-500">Active now</p>
+          <p className="text-sm text-gray-500">{t('messaging.activeNow')}</p>
         </div>
         <button className="p-2 ios-press rounded-xl text-gray-600 hover:bg-gray-100" aria-label="More options">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,8 +182,8 @@ export default function ConversationPage() {
           <div className="flex items-center justify-center h-full min-h-[60vh]">
             <div className="text-center px-4">
               <div className="text-6xl mb-4">💬</div>
-              <p className="text-base text-gray-600">No messages yet</p>
-              <p className="text-sm text-gray-500 mt-2">Start the conversation! 👋</p>
+              <p className="text-base text-gray-600">{t('messaging.noMessages')}</p>
+              <p className="text-sm text-gray-500 mt-2">{t('messaging.startConversation')}</p>
             </div>
           </div>
         ) : (
@@ -249,7 +251,7 @@ export default function ConversationPage() {
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type a message..."
+              placeholder={t('messaging.typeMessage')}
               className="flex-1 bg-transparent border-0 outline-none text-sm sm:text-base text-gray-900 placeholder-gray-400"
               disabled={sending}
               onKeyPress={(e) => {

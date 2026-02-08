@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { NotificationBell } from './NotificationBell'
 import { NavList } from './Navigation/NavList'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(' ')
@@ -158,6 +159,7 @@ export function Header() {
 
           {/* Right Side - User Menu & Notifications */}
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+            <LanguageSwitcher />
             {status === 'authenticated' && (
               <>
                 <NotificationBell />
@@ -184,7 +186,7 @@ export function Header() {
                               target.style.display = 'none'
                             }
                           }}
-                          onLoad={() => {
+                          onLoad={(e) => {
                             // Image loaded successfully - ensure it's visible
                             const target = e.target as HTMLImageElement
                             if (target) {

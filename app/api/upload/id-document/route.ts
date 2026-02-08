@@ -9,6 +9,15 @@ export const maxDuration = 30
 
 export async function POST(req: NextRequest) {
   try {
+    // Verify Supabase configuration
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Supabase configuration missing')
+      return NextResponse.json(
+        { error: 'Server configuration error. Please contact support.' },
+        { status: 500 }
+      )
+    }
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {
@@ -94,11 +103,32 @@ export async function POST(req: NextRequest) {
       })
 
     if (uploadError) {
-      console.error('Supabase upload error:', uploadError)
+      console.error('Supabase upload error:', {
+        message: uploadError.message,
+        statusCode: uploadError.statusCode,
+        error: uploadError.error,
+        filePath,
+        bucket: 'uploads'
+      })
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to upload ID document'
+      if (uploadError.message?.includes('Bucket not found')) {
+        errorMessage = 'Storage bucket not configured. Please contact support.'
+      } else if (uploadError.message?.includes('new row violates row-level security')) {
+        errorMessage = 'Storage permissions error. Please contact support.'
+      } else if (uploadError.message) {
+        errorMessage = `Upload failed: ${uploadError.message}`
+      }
+      
       return NextResponse.json(
         { 
-          error: 'Failed to upload ID document',
-          details: process.env.NODE_ENV === 'development' ? uploadError.message : undefined
+          error: errorMessage,
+          details: process.env.NODE_ENV === 'development' ? {
+            message: uploadError.message,
+            statusCode: uploadError.statusCode,
+            error: uploadError.error
+          } : undefined
         },
         { status: 500 }
       )

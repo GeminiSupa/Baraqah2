@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/components/LanguageProvider'
 
 export default function CreateProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
@@ -59,29 +61,29 @@ export default function CreateProfilePage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Failed to create profile')
+        setError(data.error || t('profile.createProfileFailed'))
         return
       }
 
       router.push('/profile')
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      setError(t('auth.errorOccurred'))
     } finally {
       setLoading(false)
     }
   }
 
   if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{t('common.loading')}</div>
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Create Your Profile</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('profile.createProfile')}</h1>
           <p className="text-base text-gray-600 mb-6">
-            Build your matrimony profile. Photos are optional - you can add them later.
+            {t('profile.buildProfile')}
           </p>
 
           {error && (
@@ -94,7 +96,7 @@ export default function CreateProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   type="email"
@@ -105,12 +107,12 @@ export default function CreateProfilePage() {
                   readOnly
                   className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed"
                 />
-                <p className="text-xs text-gray-500 mt-1">This is your registered email address</p>
+                <p className="text-xs text-gray-500 mt-1">{t('profile.registeredEmail')}</p>
               </div>
 
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name *
+                  {t('profile.firstName')} *
                 </label>
                 <input
                   type="text"
@@ -125,7 +127,7 @@ export default function CreateProfilePage() {
 
               <div>
                 <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name *
+                  {t('profile.lastName')} *
                 </label>
                 <input
                   type="text"
@@ -140,7 +142,7 @@ export default function CreateProfilePage() {
 
               <div>
                 <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
-                  Age *
+                  {t('profile.age')} *
                 </label>
                 <input
                   type="number"
@@ -157,7 +159,7 @@ export default function CreateProfilePage() {
 
               <div>
                 <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
-                  Gender *
+                  {t('profile.gender')} *
                 </label>
                 <select
                   id="gender"
@@ -167,15 +169,15 @@ export default function CreateProfilePage() {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                 >
-                  <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
+                  <option value="">{t('common.select')} {t('profile.gender')}</option>
+                  <option value="male">{t('profile.male')}</option>
+                  <option value="female">{t('profile.female')}</option>
                 </select>
               </div>
 
               <div>
                 <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
-                  Education
+                  {t('profile.education')}
                 </label>
                 <input
                   type="text"
@@ -184,13 +186,13 @@ export default function CreateProfilePage() {
                   value={formData.education}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  placeholder="e.g., Bachelor's Degree, Master's"
+                  placeholder={t('profile.education')}
                 />
               </div>
 
               <div>
                 <label htmlFor="profession" className="block text-sm font-medium text-gray-700 mb-1">
-                  Profession
+                  {t('profile.profession')}
                 </label>
                 <input
                   type="text"
@@ -199,13 +201,13 @@ export default function CreateProfilePage() {
                   value={formData.profession}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  placeholder="e.g., Software Engineer, Teacher"
+                  placeholder={t('profile.profession')}
                 />
               </div>
 
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
+                  {t('profile.location')}
                 </label>
                 <input
                   type="text"
@@ -214,13 +216,13 @@ export default function CreateProfilePage() {
                   value={formData.location}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  placeholder="Country, Region"
+                  placeholder={t('profile.location')}
                 />
               </div>
 
               <div>
                 <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                  City *
+                  {t('profile.city')} *
                 </label>
                 <input
                   type="text"
@@ -230,14 +232,14 @@ export default function CreateProfilePage() {
                   value={formData.city}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  placeholder="e.g., Berlin, Karachi, London"
+                  placeholder={t('profile.city')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                Bio / About Me
+                {t('profile.bio')} / {t('profile.aboutMe')}
               </label>
               <textarea
                 id="bio"
@@ -246,19 +248,19 @@ export default function CreateProfilePage() {
                 value={formData.bio}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                placeholder="Tell others about yourself..."
+                placeholder={t('profile.tellAboutYourself')}
               />
             </div>
 
             <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Islamic/Cultural Preferences (Optional)</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('profile.islamicPreferences')} ({t('common.optional')})</h2>
               <p className="text-sm text-gray-600 mb-4">
-                These preferences are optional. You can fill them now or update them later. Detailed compatibility questions will be asked when you connect with someone.
+                {t('profile.preferencesOptional')}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="sectPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                    Sect Preference
+                    {t('profile.sectPreference')}
                   </label>
                   <select
                     id="sectPreference"
@@ -267,16 +269,16 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="">Select preference (optional)</option>
-                    <option value="sunni">Sunni</option>
-                    <option value="shia">Shia</option>
-                    <option value="no-preference">No Preference</option>
+                    <option value="">{t('common.select')} {t('profile.preference')} ({t('common.optional')})</option>
+                    <option value="sunni">{t('profile.sunni')}</option>
+                    <option value="shia">{t('profile.shia')}</option>
+                    <option value="no-preference">{t('profile.noPreference')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label htmlFor="prayerPractice" className="block text-sm font-medium text-gray-700 mb-1">
-                    Prayer Practice
+                    {t('profile.prayerPractice')}
                   </label>
                   <select
                     id="prayerPractice"
@@ -285,16 +287,16 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="">Select practice (optional)</option>
-                    <option value="regular">Regular</option>
-                    <option value="sometimes">Sometimes</option>
-                    <option value="special-occasions">Special Occasions</option>
+                    <option value="">{t('common.select')} {t('profile.practice')} ({t('common.optional')})</option>
+                    <option value="regular">{t('profile.regular')}</option>
+                    <option value="sometimes">{t('profile.sometimes')}</option>
+                    <option value="special-occasions">{t('profile.specialOccasions')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label htmlFor="hijabPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                    Hijab Preference (for matches)
+                    {t('profile.hijabPreference')}
                   </label>
                   <select
                     id="hijabPreference"
@@ -303,21 +305,21 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="">Select preference (optional)</option>
-                    <option value="required">Required</option>
-                    <option value="preferred">Preferred</option>
-                    <option value="no-preference">No Preference</option>
+                    <option value="">{t('common.select')} {t('profile.preference')} ({t('common.optional')})</option>
+                    <option value="required">{t('profile.required')}</option>
+                    <option value="preferred">{t('profile.preferred')}</option>
+                    <option value="no-preference">{t('profile.noPreference')}</option>
                   </select>
                 </div>
               </div>
             </div>
 
             <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy Settings</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('profile.privacySettings')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="photoPrivacy" className="block text-sm font-medium text-gray-700 mb-1">
-                    Photo Privacy
+                    {t('profile.photoPrivacy')}
                   </label>
                   <select
                     id="photoPrivacy"
@@ -326,15 +328,15 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="private">Private</option>
-                    <option value="public">Public</option>
-                    <option value="verified-only">Verified Users Only</option>
+                    <option value="private">{t('profile.private')}</option>
+                    <option value="public">{t('profile.public')}</option>
+                    <option value="verified-only">{t('profile.verifiedUsersOnly')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label htmlFor="profileVisibility" className="block text-sm font-medium text-gray-700 mb-1">
-                    Profile Visibility
+                    {t('profile.profileVisibility')}
                   </label>
                   <select
                     id="profileVisibility"
@@ -343,9 +345,9 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                    <option value="verified-only">Verified Users Only</option>
+                    <option value="public">{t('profile.public')}</option>
+                    <option value="private">{t('profile.private')}</option>
+                    <option value="verified-only">{t('profile.verifiedUsersOnly')}</option>
                   </select>
                 </div>
               </div>
@@ -357,14 +359,14 @@ export default function CreateProfilePage() {
                 onClick={() => router.back()}
                 className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={loading}
                 className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating...' : 'Create Profile'}
+                {loading ? t('common.loading') : t('profile.createProfile')}
               </button>
             </div>
           </form>

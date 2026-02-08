@@ -50,34 +50,35 @@ export function ShieldIcon({ className }: { className?: string }) {
   )
 }
 
+// Note: Labels will be translated in NavList component using useTranslation hook
 export const NAV_ITEMS: NavItem[] = [
   {
     href: '/browse',
-    label: 'Browse',
+    label: 'Browse', // Will be translated via useTranslation
     icon: SearchIcon,
-    roles: ['user', 'admin']
+    roles: ['user'] // Admins should not browse profiles
   },
   {
     href: '/favorites',
-    label: 'Favorites',
+    label: 'Favorites', // Will be translated via useTranslation
     icon: HeartIcon,
     roles: ['user']
   },
   {
     href: '/messaging',
-    label: 'Messages',
+    label: 'Messages', // Will be translated via useTranslation
     icon: MessageIcon,
     roles: ['user']
   },
   {
     href: '/profile',
-    label: 'My Profile',
+    label: 'My Profile', // Will be translated via useTranslation
     icon: UserIcon,
     roles: ['user']
   },
   {
     href: '/admin',
-    label: 'Admin Dashboard',
+    label: 'Admin Dashboard', // Will be translated via useTranslation
     icon: ShieldIcon,
     roles: ['admin']
   }

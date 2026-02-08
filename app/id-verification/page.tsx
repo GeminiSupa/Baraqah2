@@ -79,8 +79,9 @@ export default function IDVerificationPage() {
 
       if (!response.ok) {
         const errorMessage = data.error || data.message || 'Upload failed'
+        const errorDetails = data.details ? ` Details: ${JSON.stringify(data.details)}` : ''
         console.error('Upload error:', errorMessage, data)
-        setError(errorMessage)
+        setError(`${errorMessage}${errorDetails}`)
         return
       }
 

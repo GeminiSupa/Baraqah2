@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { useTranslation } from '@/components/LanguageProvider'
 
 export function ContactForm() {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -42,7 +44,7 @@ export function ContactForm() {
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess(data.message || 'Thank you for contacting us! We will get back to you soon.')
+        setSuccess(data.message || t('home.thankYouContact'))
         setFormData({
           name: '',
           email: '',
@@ -50,10 +52,10 @@ export function ContactForm() {
           message: '',
         })
       } else {
-        setError(data.error || 'Failed to send message. Please try again.')
+        setError(data.error || t('home.failedToSend'))
       }
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      setError(t('auth.errorOccurred'))
     } finally {
       setLoading(false)
     }
@@ -61,7 +63,7 @@ export function ContactForm() {
 
   return (
     <Card className="rounded-3xl shadow-xl border border-gray-100/50">
-      <h3 className="text-xl font-semibold text-gray-900 mb-4">Send us a Message</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('home.sendUsMessage')}</h3>
       
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
@@ -78,7 +80,7 @@ export function ContactForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1">
-            Name *
+            {t('home.name')} *
           </label>
           <input
             id="contact-name"
@@ -88,13 +90,13 @@ export function ContactForm() {
             value={formData.name}
             onChange={handleChange}
             className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
-            placeholder="Your name"
+            placeholder={t('home.yourName')}
           />
         </div>
 
         <div>
           <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email *
+            {t('auth.email')} *
           </label>
           <input
             id="contact-email"
@@ -104,13 +106,13 @@ export function ContactForm() {
             value={formData.email}
             onChange={handleChange}
             className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
-            placeholder="your.email@example.com"
+            placeholder={t('auth.email')}
           />
         </div>
 
         <div>
           <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700 mb-1">
-            Subject *
+            {t('home.subject')} *
           </label>
           <input
             id="contact-subject"
@@ -120,13 +122,13 @@ export function ContactForm() {
             value={formData.subject}
             onChange={handleChange}
             className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
-            placeholder="What is this regarding?"
+            placeholder={t('home.whatIsThisRegarding')}
           />
         </div>
 
         <div>
           <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1">
-            Message *
+            {t('home.message')} *
           </label>
           <textarea
             id="contact-message"
@@ -136,7 +138,7 @@ export function ContactForm() {
             value={formData.message}
             onChange={handleChange}
             className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue resize-y text-gray-900 bg-white"
-            placeholder="Tell us how we can help you..."
+            placeholder={t('home.tellUsHowWeCanHelp')}
             minLength={10}
           />
         </div>
@@ -148,7 +150,7 @@ export function ContactForm() {
           disabled={loading}
           className="font-semibold"
         >
-          {loading ? 'Sending...' : 'Send Message'}
+          {loading ? t('home.sending') : t('home.sendMessage')}
         </Button>
       </form>
     </Card>

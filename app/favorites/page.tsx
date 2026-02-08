@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { EmptyFavorites } from '@/components/ui/EmptyState'
+import { useTranslation } from '@/components/LanguageProvider'
 
 interface Favorite {
   id: string
@@ -33,6 +34,7 @@ interface Favorite {
 export default function FavoritesPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
   const [removing, setRemoving] = useState<string | null>(null)
@@ -41,9 +43,14 @@ export default function FavoritesPage() {
     if (status === 'unauthenticated') {
       router.push('/login')
     } else if (status === 'authenticated') {
+      // Prevent admins from accessing favorites
+      if (session?.user?.isAdmin) {
+        router.push('/admin')
+        return
+      }
       fetchFavorites()
     }
-  }, [status, router])
+  }, [status, session, router])
 
   const fetchFavorites = async () => {
     setLoading(true)
@@ -62,7 +69,7 @@ export default function FavoritesPage() {
   }
 
   const handleRemove = async (userId: string) => {
-    if (!confirm('Remove from favorites?')) return
+    if (!confirm(t('favorites.removeFromFavorites'))) return
 
     setRemoving(userId)
     try {
@@ -81,7 +88,7 @@ export default function FavoritesPage() {
   }
 
   if (status === 'loading' || loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{t('common.loading')}</div>
   }
 
   return (
@@ -90,8 +97,8 @@ export default function FavoritesPage() {
       <div className="relative z-10">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Favorites</h1>
-          <p className="text-base text-gray-600">Profiles you&apos;ve saved</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('favorites.title')}</h1>
+          <p className="text-base text-gray-600">{t('favorites.subtitle')}</p>
         </div>
 
         {favorites.length === 0 ? (
@@ -127,24 +134,24 @@ export default function FavoritesPage() {
                       {favorite.profile && (
                         favorite.profile.idVerified ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                            ✓ Verified ID
+                            ✓ {t('profile.verifiedId')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
-                            Not verified
+                            {t('profile.notVerified')}
                           </span>
                         )
                       )}
                     </div>
                     {favorite.profile && (
                       <p className="text-ios-subhead text-iosGray-1">
-                        {favorite.profile.age} years • {favorite.profile.gender}
+                        {favorite.profile.age} {t('common.years')} • {favorite.profile.gender === 'male' ? t('profile.male') : t('profile.female')}
                         {favorite.profile.city && ` • ${favorite.profile.city}`}
                       </p>
                     )}
                     <div className="mt-3 flex space-x-2">
                       <Link href={`/profile/view/${favorite.userId}`}>
-                        <Button variant="ghost" size="sm">View Profile</Button>
+                        <Button variant="ghost" size="sm">{t('common.view')} {t('navigation.profile')}</Button>
                       </Link>
                       <Button
                         variant="ghost"
@@ -152,7 +159,7 @@ export default function FavoritesPage() {
                         onClick={() => handleRemove(favorite.userId)}
                         disabled={removing === favorite.userId}
                       >
-                        {removing === favorite.userId ? 'Removing...' : 'Remove'}
+                        {removing === favorite.userId ? t('common.loading') : t('common.remove')}
                       </Button>
                     </div>
                   </div>

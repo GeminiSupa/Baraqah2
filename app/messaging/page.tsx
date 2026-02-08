@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { EmptyMessages } from '@/components/ui/EmptyState'
+import { useTranslation } from '@/components/LanguageProvider'
 
 interface MessageRequest {
   id: string
@@ -38,6 +39,7 @@ interface MessageRequest {
 export default function MessagingPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [requests, setRequests] = useState<MessageRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [requestType, setRequestType] = useState<'received' | 'sent'>('received')
@@ -61,9 +63,14 @@ export default function MessagingPage() {
     if (status === 'unauthenticated') {
       router.push('/login')
     } else if (status === 'authenticated') {
+      // Prevent admins from accessing messaging
+      if (session?.user?.isAdmin) {
+        router.push('/admin')
+        return
+      }
       fetchRequests()
     }
-  }, [status, router, fetchRequests])
+  }, [status, session, router, fetchRequests])
 
   const handleApprove = async (requestId: string) => {
     try {
@@ -128,12 +135,12 @@ export default function MessagingPage() {
           <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-base font-medium">Back</span>
+          <span className="text-base font-medium">{t('common.back')}</span>
         </button>
         
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Messages</h1>
-          <p className="text-base text-gray-600">Manage your message requests and conversations</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('messaging.messages')}</h1>
+          <p className="text-base text-gray-600">{t('messaging.conversations')}</p>
         </div>
         
         <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8 mb-6">
@@ -147,7 +154,7 @@ export default function MessagingPage() {
                   : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
               }`}
             >
-              Received Requests
+              {t('messaging.receivedRequests')}
             </button>
             <button
               onClick={() => setRequestType('sent')}
@@ -157,13 +164,13 @@ export default function MessagingPage() {
                   : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
               }`}
             >
-              Sent Requests
+              {t('messaging.sentRequests')}
             </button>
           </div>
 
           {requestType === 'received' && pendingRequests.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Pending Requests</h2>
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('messaging.pendingRequests')}</h2>
               <div className="space-y-4">
                 {pendingRequests.map((request) => (
                   <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
@@ -176,11 +183,11 @@ export default function MessagingPage() {
                           {request.sender?.profile && (
                             request.sender.profile.idVerified ? (
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                                ✓ Verified ID
+                                ✓ {t('profile.verifiedId')}
                               </span>
                             ) : (
                               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
-                                Not verified
+                                {t('profile.notVerified')}
                               </span>
                             )
                           )}
@@ -197,19 +204,19 @@ export default function MessagingPage() {
                           href={`/messaging/request/${request.id}`}
                           className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
                         >
-                          View Profile
+                          {t('messaging.viewDetails')}
                         </Link>
                         <button
                           onClick={() => handleApprove(request.id)}
                           className="px-5 py-3 min-h-[44px] bg-green-600 text-white rounded-xl hover:bg-green-700 text-base font-semibold ios-press shadow-md"
                         >
-                          Approve
+                          {t('messaging.approve')}
                         </button>
                         <button
                           onClick={() => handleReject(request.id)}
                           className="px-5 py-3 min-h-[44px] bg-red-600 text-white rounded-xl hover:bg-red-700 text-base font-semibold ios-press shadow-md"
                         >
-                          Reject
+                          {t('messaging.reject')}
                         </button>
                       </div>
                     </div>
@@ -221,7 +228,7 @@ export default function MessagingPage() {
 
           <div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">
-              {requestType === 'received' ? 'Approved Requests' : 'Your Requests'}
+              {requestType === 'received' ? t('messaging.approvedRequests') : t('messaging.sentRequests')}
             </h2>
             {approvedRequests.length === 0 ? (
               <EmptyMessages />
@@ -242,17 +249,17 @@ export default function MessagingPage() {
                             {otherUser?.profile && (
                               otherUser.profile.idVerified ? (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                                  ✓ Verified ID
+                                  ✓ {t('profile.verifiedId')}
                                 </span>
                               ) : (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
-                                  Not verified
+                                  {t('profile.notVerified')}
                                 </span>
                               )
                             )}
                           </div>
                           <p className="text-base text-gray-600 mb-1">
-                            Status: <span className="font-medium">{request.connectionStatus.replace('_', ' ').toUpperCase()}</span>
+                            {t('common.status')}: <span className="font-medium">{request.connectionStatus.replace('_', ' ').toUpperCase()}</span>
                           </p>
                           <p className="text-sm text-gray-500">
                             {new Date(request.createdAt).toLocaleDateString()}
@@ -264,7 +271,7 @@ export default function MessagingPage() {
                               href={`/messaging/compatibility/${request.id}`}
                               className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
                             >
-                              Complete Compatibility Questions
+                              {t('messaging.completeCompatibility')}
                             </Link>
                           )}
                           {(request.connectionStatus === 'questionnaire_sent' ||
@@ -278,8 +285,8 @@ export default function MessagingPage() {
                               }`}
                             >
                               {request.connectionStatus === 'questionnaire_sent' 
-                                ? '📩 Answer Custom Questions' 
-                                : 'View Custom Questions'}
+                                ? t('messaging.answerCustomQuestions') 
+                                : t('messaging.viewCustomQuestions')}
                             </Link>
                           )}
                           {canMessage && (
@@ -287,7 +294,7 @@ export default function MessagingPage() {
                               href={`/messaging/${otherUser?.id}`}
                               className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
                             >
-                              Message
+                              {t('messaging.sendMessage')}
                             </Link>
                           )}
                         </div>

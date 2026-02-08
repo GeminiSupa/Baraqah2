@@ -66,6 +66,15 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
+    // Get language preference from cookie or default to 'en'
+    const cookieHeader = req.headers.get('cookie') || ''
+    const languageMatch = cookieHeader.match(/preferred-language=([^;]+)/)
+    const preferredLanguage = languageMatch ? languageMatch[1] : 'en'
+    
+    // Validate language code
+    const validLanguages = ['en', 'de', 'it', 'ur', 'ar']
+    const userLanguage = validLanguages.includes(preferredLanguage) ? preferredLanguage : 'en'
+
     // Create user (no email/phone verification required)
     const { data: user, error: insertError } = await supabaseAdmin
       .from('users')
@@ -79,6 +88,7 @@ export async function POST(req: NextRequest) {
         phone_verified: true,
         id_verified: false,
         profile_active: false,
+        preferred_language: userLanguage,
       })
       .select('id, email, phone, email_verified, phone_verified, created_at')
       .single()

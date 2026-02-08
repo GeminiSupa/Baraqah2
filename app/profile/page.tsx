@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge'
 import { calculateProfileCompleteness } from '@/lib/profile-completeness'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { OptimizedImage } from '@/components/OptimizedImage'
+import { useTranslation } from '@/components/LanguageProvider'
 
 interface Profile {
   id: string
@@ -38,6 +39,7 @@ interface Profile {
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -63,9 +65,14 @@ export default function ProfilePage() {
     if (status === 'unauthenticated') {
       router.push('/login')
     } else if (status === 'authenticated') {
+      // Prevent admins from accessing user profile pages
+      if (session?.user?.isAdmin) {
+        router.push('/admin')
+        return
+      }
       fetchProfile()
     }
-  }, [status, router, fetchProfile])
+  }, [status, session, router, fetchProfile])
 
   if (status === 'loading' || loading) {
     return (
@@ -95,9 +102,9 @@ export default function ProfilePage() {
           <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Profile Completeness</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{t('profile.completeness')}</h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Complete your profile to get better matches
+                  {t('profile.completeYourProfile')}
                 </p>
               </div>
               <Badge variant={completeness.percentage >= 80 ? 'success' : completeness.percentage >= 50 ? 'warning' : 'danger'}>
@@ -162,16 +169,16 @@ export default function ProfilePage() {
                     </h1>
                     {session?.user?.idVerified ? (
                       <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold border border-green-200">
-                        <span className="mr-1">✓</span> Verified ID
+                        <span className="mr-1">✓</span> {t('profile.verifiedId')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-xs font-semibold border border-gray-200">
-                        Not verified
+                        {t('profile.notVerified')}
                       </span>
                     )}
                   </div>
                   <p className="text-base text-gray-600 font-medium">
-                    {profile.age} years old
+                    {profile.age} {t('common.years')} {t('common.old')}
                     {profile.city ? ` • ${profile.city}` : profile.location ? ` • ${profile.location}` : ''}
                   </p>
                 </div>
@@ -183,13 +190,13 @@ export default function ProfilePage() {
                         size="md"
                         className="w-full sm:w-auto font-semibold"
                       >
-                        Verify my ID
+                        {t('profile.verifyMyId')}
                       </Button>
                     </Link>
                   )}
                   <Link href="/profile/edit" className="w-full sm:w-auto">
                     <Button variant="ghost" size="md" className="w-full sm:w-auto font-semibold">
-                      Edit Profile
+                      {t('profile.editProfile')}
                     </Button>
                   </Link>
                 </div>
@@ -217,7 +224,7 @@ export default function ProfilePage() {
               {/* About */}
               {profile.bio && (
                 <div className="mb-6">
-                  <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">About Me</h2>
+                  <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">{t('profile.aboutMe')}</h2>
                   <p className="text-base text-gray-700 leading-relaxed">{profile.bio}</p>
                 </div>
               )}

@@ -95,7 +95,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const { data: currentUser } = await supabaseAdmin
             .from('users')
-            .select('email_verified, phone_verified, id_verified, profile_active, is_admin')
+            .select('email_verified, phone_verified, id_verified, profile_active, is_admin, preferred_language')
             .eq('id', token.id)
             .single()
           
@@ -105,6 +105,7 @@ export const authOptions: NextAuthOptions = {
             token.idVerified = currentUser.id_verified
             token.profileActive = currentUser.profile_active
             token.isAdmin = currentUser.is_admin || false
+            token.preferredLanguage = currentUser.preferred_language || 'en'
             token.lastRefreshed = now
           }
         } catch (error) {
@@ -123,6 +124,7 @@ export const authOptions: NextAuthOptions = {
         session.user.idVerified = token.idVerified as boolean
         session.user.profileActive = token.profileActive as boolean
         session.user.isAdmin = token.isAdmin as boolean
+        session.user.preferredLanguage = (token.preferredLanguage as string) || 'en'
       }
       return session
     },
@@ -141,6 +143,7 @@ declare module 'next-auth' {
     idVerified: boolean
     profileActive: boolean
     isAdmin: boolean
+    preferredLanguage?: string
   }
   interface Session {
     user: {
@@ -151,6 +154,7 @@ declare module 'next-auth' {
       idVerified: boolean
       profileActive: boolean
       isAdmin: boolean
+      preferredLanguage?: string
     }
   }
 }

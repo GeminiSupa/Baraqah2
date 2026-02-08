@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { OptimizedImage } from '@/components/OptimizedImage'
+import { useTranslation } from '@/components/LanguageProvider'
 
 export default function EditProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -209,27 +211,27 @@ export default function EditProfilePage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || 'Failed to update profile')
+        setError(data.error || t('profile.updateProfileFailed'))
         return
       }
 
       router.push('/profile')
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      setError(t('auth.errorOccurred'))
     } finally {
       setSaving(false)
     }
   }
 
   if (status === 'loading' || loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{t('common.loading')}</div>
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white shadow rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Edit Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('profile.editProfile')}</h1>
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -245,7 +247,7 @@ export default function EditProfilePage() {
 
           {/* Photo Upload Section */}
           <div className="mb-8 border-b pb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Photos</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('profile.photos')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               {photos.map((photo) => (
                 <div key={photo.id} className="relative h-32 md:h-40 rounded-lg overflow-hidden border-2 border-gray-200 group">
@@ -257,7 +259,7 @@ export default function EditProfilePage() {
                   />
                   {photo.isPrimary && (
                     <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded font-semibold z-10 shadow-md">
-                      ✓ Primary
+                      ✓ {t('profile.primaryPhoto')}
                     </span>
                   )}
                   {/* Action buttons - always visible on mobile, hover on desktop */}
@@ -267,18 +269,18 @@ export default function EditProfilePage() {
                         onClick={() => handleSetPrimary(photo.id)}
                         disabled={processing === photo.id}
                         className="w-full md:w-auto px-3 py-2 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md"
-                        title="Set as primary photo"
+                        title={t('profile.setAsPrimary')}
                       >
-                        {processing === photo.id ? 'Setting...' : 'Set as Primary'}
+                        {processing === photo.id ? t('common.loading') : t('profile.setAsPrimary')}
                       </button>
                     )}
                     <button
                       onClick={() => handleDeletePhoto(photo.id)}
                       disabled={processing === photo.id}
                       className="w-full md:w-auto px-3 py-2 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-md"
-                      title="Delete photo"
+                      title={t('profile.deletePhoto')}
                     >
-                      {processing === photo.id ? 'Deleting...' : 'Delete'}
+                      {processing === photo.id ? t('common.loading') : t('common.delete')}
                     </button>
                   </div>
                 </div>
@@ -286,7 +288,7 @@ export default function EditProfilePage() {
             </div>
             <div>
               <label htmlFor="photo-upload" className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Photo
+                {t('profile.uploadPhoto')}
               </label>
               <input
                 type="file"
@@ -296,7 +298,7 @@ export default function EditProfilePage() {
                 disabled={uploading}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
               />
-              {uploading && <p className="mt-2 text-sm text-gray-600">Uploading...</p>}
+              {uploading && <p className="mt-2 text-sm text-gray-600">{t('common.upload')}...</p>}
             </div>
           </div>
 

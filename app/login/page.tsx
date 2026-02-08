@@ -5,9 +5,11 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useTranslation } from '@/components/LanguageProvider'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -26,7 +28,7 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError(result.error)
+        setError(result.error === 'CredentialsSignin' ? t('auth.invalidCredentials') : result.error)
       } else {
         // After successful sign-in:
         // - Admins go to admin dashboard
@@ -44,7 +46,7 @@ export default function LoginPage() {
         router.refresh()
       }
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      setError(t('auth.errorOccurred'))
     } finally {
       setLoading(false)
     }
@@ -63,7 +65,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 relative z-10 bg-white/98 backdrop-blur-ios-lg rounded-ios-2xl p-8 sm:p-10 shadow-ios-xl">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Baraqah
+            {t('auth.login')} {t('common.to')} Baraqah
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             A respectful matrimony platform for the Muslim community
@@ -72,15 +74,13 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
-              {error === 'CredentialsSignin'
-                ? 'Invalid email or password. Please check your details and try again.'
-                : error}
+              {error}
             </div>
           )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                {t('auth.email')}
               </label>
               <input
                 id="email"
@@ -91,12 +91,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                placeholder={t('auth.email')}
               />
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                {t('auth.password')}
               </label>
               <input
                 id="password"
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder={t('auth.password')}
               />
             </div>
           </div>
@@ -118,14 +118,14 @@ export default function LoginPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? t('common.loading') : t('auth.signIn')}
             </button>
           </div>
 
           <div className="text-center text-sm">
-            <span className="text-gray-600">Don&apos;t have an account? </span>
+            <span className="text-gray-600">{t('auth.dontHaveAccount')} </span>
             <Link href="/register" className="font-medium text-primary-600 hover:text-primary-500">
-              Register
+              {t('auth.register')}
             </Link>
           </div>
         </form>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslation } from '@/components/LanguageProvider'
 
 interface DashboardStats {
   pendingVerifications: number
@@ -17,6 +18,7 @@ interface DashboardStats {
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -57,40 +59,40 @@ export default function AdminDashboardPage() {
 
   const adminSections = [
     {
-      title: 'ID Verifications',
-      description: 'Review and approve ID document verifications',
+      title: t('admin.idVerifications'),
+      description: t('admin.reviewApproveId'),
       href: '/admin/verifications',
       count: stats?.pendingVerifications || 0,
       color: 'blue',
       icon: '🆔',
     },
     {
-      title: 'User Management',
-      description: 'View, search, suspend, and activate user accounts',
+      title: t('admin.userManagement'),
+      description: t('admin.viewSearchUsers'),
       href: '/admin/users',
       count: stats?.totalUsers || 0,
       color: 'green',
       icon: '👥',
     },
     {
-      title: 'Profile Moderation',
-      description: 'Approve or reject new profiles before they go live',
+      title: t('admin.profileModeration'),
+      description: t('admin.approveRejectProfiles'),
       href: '/admin/profiles',
       count: stats?.pendingProfiles || 0,
       color: 'purple',
       icon: '📝',
     },
     {
-      title: 'Reports Management',
-      description: 'Review user reports and take appropriate action',
+      title: t('admin.reportsManagement'),
+      description: t('admin.reviewReports'),
       href: '/admin/reports',
       count: stats?.pendingReports || 0,
       color: 'red',
       icon: '🚨',
     },
     {
-      title: 'User Monitoring',
-      description: 'Monitor user activity, messages, and behavior patterns',
+      title: t('admin.userMonitoring'),
+      description: t('admin.monitorActivity'),
       href: '/admin/monitoring',
       count: 0,
       color: 'indigo',
@@ -109,12 +111,12 @@ export default function AdminDashboardPage() {
           <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-base font-medium">Back</span>
+          <span className="text-base font-medium">{t('common.back')}</span>
         </button>
 
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-sm sm:text-base text-gray-600">Manage the platform and moderate content</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('admin.dashboard')}</h1>
+          <p className="text-sm sm:text-base text-gray-600">{t('admin.managePlatform')}</p>
         </div>
 
         {/* Quick Stats */}
@@ -126,7 +128,7 @@ export default function AdminDashboardPage() {
                   <span className="text-xl sm:text-2xl">🆔</span>
                 </div>
                 <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Pending Verifications</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">{t('admin.pendingVerifications')}</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.pendingVerifications}</p>
                 </div>
               </div>
@@ -138,7 +140,7 @@ export default function AdminDashboardPage() {
                   <span className="text-xl sm:text-2xl">📝</span>
                 </div>
                 <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Pending Profiles</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">{t('admin.pendingProfiles')}</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.pendingProfiles}</p>
                 </div>
               </div>
@@ -150,7 +152,7 @@ export default function AdminDashboardPage() {
                   <span className="text-xl sm:text-2xl">🚨</span>
                 </div>
                 <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Pending Reports</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">{t('admin.pendingReports')}</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.pendingReports}</p>
                 </div>
               </div>
@@ -162,7 +164,7 @@ export default function AdminDashboardPage() {
                   <span className="text-xl sm:text-2xl">👥</span>
                 </div>
                 <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Users</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">{t('admin.totalUsers')}</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
                 </div>
               </div>
@@ -176,7 +178,7 @@ export default function AdminDashboardPage() {
             <Link
               key={section.href}
               href={section.href}
-              className="block bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 hover:shadow-2xl transition-all p-4 sm:p-6 ios-press"
+              className="block bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 hover:shadow-2xl active:scale-[0.98] transition-all p-4 sm:p-6 ios-press cursor-pointer relative z-10"
             >
               <div className="flex items-start">
                 <div className={`flex-shrink-0 bg-${section.color}-100 rounded-xl sm:rounded-2xl p-3 sm:p-4`}>
@@ -193,7 +195,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <p className="text-xs sm:text-sm text-gray-600 mt-2">{section.description}</p>
                   <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-iosBlue font-semibold">
-                    Manage →
+                    {t('admin.manage')}
                   </div>
                 </div>
               </div>
@@ -203,13 +205,13 @@ export default function AdminDashboardPage() {
 
         {/* Admin Notice */}
         <div className="bg-blue-50 border border-blue-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6">
-          <h3 className="font-semibold text-blue-900 mb-3 text-base sm:text-lg">Admin Guidelines</h3>
+          <h3 className="font-semibold text-blue-900 mb-3 text-base sm:text-lg">{t('admin.guidelines')}</h3>
           <ul className="text-xs sm:text-sm text-blue-800 space-y-2 list-disc list-inside">
-            <li>Review all verifications and profiles carefully before approval</li>
-            <li>Take appropriate action on user reports within 24 hours</li>
-            <li>Maintain user privacy and handle sensitive data securely</li>
-            <li>Document any moderation actions taken</li>
-            <li>Use monitoring tools to detect misuse and harassment patterns</li>
+            <li>{t('admin.reviewVerifications')}</li>
+            <li>{t('admin.takeActionReports')}</li>
+            <li>{t('admin.maintainPrivacy')}</li>
+            <li>{t('admin.documentActions')}</li>
+            <li>{t('admin.useMonitoring')}</li>
           </ul>
         </div>
       </div>

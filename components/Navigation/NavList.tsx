@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { getVisibleNavItems } from '@/lib/navigation-config'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/components/LanguageProvider'
 
 interface NavListProps {
   variant?: 'horizontal' | 'mobile'
@@ -14,8 +15,18 @@ interface NavListProps {
 export function NavList({ variant = 'horizontal', className }: NavListProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { t } = useTranslation()
   const userRole = session?.user?.isAdmin ? 'admin' : 'user'
   const visibleItems = getVisibleNavItems(userRole)
+  
+  // Translation mapping for navigation labels
+  const labelTranslations: Record<string, string> = {
+    'Browse': t('navigation.browse'),
+    'Favorites': t('navigation.favorites'),
+    'Messages': t('navigation.messages'),
+    'My Profile': t('navigation.profile'),
+    'Admin Dashboard': t('navigation.adminDashboard'),
+  }
   
   if (variant === 'mobile') {
     return (
@@ -34,7 +45,7 @@ export function NavList({ variant = 'horizontal', className }: NavListProps) {
               )}
             >
               <Icon className="w-6 h-6 mb-1" />
-              <span className="text-ios-caption1">{item.label}</span>
+              <span className="text-ios-caption1">{labelTranslations[item.label] || item.label}</span>
             </Link>
           )
         })}
@@ -58,7 +69,7 @@ export function NavList({ variant = 'horizontal', className }: NavListProps) {
                 : 'border-transparent text-iosGray-1 hover:text-gray-700 hover:border-iosGray-3'
             )}
           >
-            {item.label}
+            {labelTranslations[item.label] || item.label}
           </Link>
         )
       })}
