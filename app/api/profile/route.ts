@@ -92,7 +92,10 @@ export async function GET(req: NextRequest) {
 
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
-      .select('*, photos(*)')
+      .select(`
+        *,
+        photos(*)
+      `)
       .eq('user_id', session.user.id)
       .single()
 

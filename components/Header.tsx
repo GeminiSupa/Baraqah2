@@ -25,22 +25,52 @@ export function Header() {
   useEffect(() => {
     if (status === 'authenticated' && session?.user?.id) {
       fetch('/api/profile')
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`)
+          }
+          return res.json()
+        })
         .then(data => {
           if (data.profile) {
             const name = `${data.profile.firstName || ''} ${data.profile.lastName || ''}`.trim()
             if (name) setUserName(name)
             
             // Get primary photo or first photo
-            if (data.profile.photos && data.profile.photos.length > 0) {
-              const primaryPhoto = data.profile.photos.find((p: any) => p.isPrimary) || data.profile.photos[0]
+            if (data.profile.photos && Array.isArray(data.profile.photos) && data.profile.photos.length > 0) {
+              // Find primary photo first, then fall back to first photo
+              const primaryPhoto = data.profile.photos.find((p: any) => p.isPrimary === true) 
+                || data.profile.photos.find((p: any) => p.isPrimary === 1)
+                || data.profile.photos[0]
+              
               if (primaryPhoto?.url) {
-                setProfilePhoto(primaryPhoto.url)
+                // Ensure URL is valid and set it
+                const photoUrl = String(primaryPhoto.url).trim()
+                if (photoUrl && (photoUrl.startsWith('http') || photoUrl.startsWith('/'))) {
+                  setProfilePhoto(photoUrl)
+                } else {
+                  console.warn('Invalid photo URL format:', photoUrl)
+                  setProfilePhoto(null)
+                }
+              } else {
+                console.warn('Photo found but no URL:', primaryPhoto)
+                setProfilePhoto(null)
               }
+            } else {
+              // No photos found
+              setProfilePhoto(null)
             }
+          } else {
+            setProfilePhoto(null)
           }
         })
-        .catch(() => {})
+        .catch((error) => {
+          console.error('Error fetching profile for header:', error)
+          setProfilePhoto(null)
+        })
+    } else {
+      setProfilePhoto(null)
+      setUserName(null)
     }
   }, [status, session?.user?.id])
 
@@ -49,19 +79,39 @@ export function Header() {
     const handleCustomEvent = () => {
       if (status === 'authenticated' && session?.user?.id) {
         fetch('/api/profile')
-          .then(res => res.json())
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`)
+            }
+            return res.json()
+          })
           .then(data => {
             if (data.profile) {
               // Get primary photo or first photo
-              if (data.profile.photos && data.profile.photos.length > 0) {
-                const primaryPhoto = data.profile.photos.find((p: any) => p.isPrimary) || data.profile.photos[0]
+              if (data.profile.photos && Array.isArray(data.profile.photos) && data.profile.photos.length > 0) {
+                const primaryPhoto = data.profile.photos.find((p: any) => p.isPrimary === true) 
+                  || data.profile.photos.find((p: any) => p.isPrimary === 1)
+                  || data.profile.photos[0]
+                
                 if (primaryPhoto?.url) {
-                  setProfilePhoto(primaryPhoto.url)
+                  const photoUrl = String(primaryPhoto.url).trim()
+                  if (photoUrl && (photoUrl.startsWith('http') || photoUrl.startsWith('/'))) {
+                    setProfilePhoto(photoUrl)
+                  } else {
+                    setProfilePhoto(null)
+                  }
+                } else {
+                  setProfilePhoto(null)
                 }
+              } else {
+                setProfilePhoto(null)
               }
             }
           })
-          .catch(() => {})
+          .catch((error) => {
+            console.error('Error refreshing profile photo:', error)
+            setProfilePhoto(null)
+          })
       }
     }
 
@@ -115,14 +165,26 @@ export function Header() {
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center space-x-2 px-2 py-2 hover:bg-iosGray-6 rounded-ios ios-press transition-colors"
                   >
-                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
+                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0 bg-iosBlue">
                       {profilePhoto ? (
-                        <Image
+                        <img
                           src={profilePhoto}
                           alt={displayName}
-                          fill
-                          className="object-cover"
-                          sizes="36px"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // If image fails to load, fall back to initial
+                            console.warn('Failed to load profile photo:', profilePhoto)
+                            setProfilePhoto(null)
+                            // Hide the broken image
+                            const target = e.target as HTMLImageElement
+                            if (target) {
+                              target.style.display = 'none'
+                            }
+                          }}
+                          onLoad={() => {
+                            // Image loaded successfully
+                            console.log('Profile photo loaded successfully:', profilePhoto)
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full bg-iosBlue flex items-center justify-center">
