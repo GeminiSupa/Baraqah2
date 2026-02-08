@@ -90,6 +90,8 @@ model Profile {
   profession        String?
   location          String?
   city              String?
+  // Religious background
+  religiousBackground String?
   // Islamic/Cultural preferences
   sectPreference    String?
   prayerPractice    String?

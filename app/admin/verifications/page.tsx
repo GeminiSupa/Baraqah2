@@ -93,14 +93,25 @@ export default function AdminVerificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+
+        <div className="mb-6 sm:mb-8">
+          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium text-sm sm:text-base">
             ← Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">ID Verification Management</h1>
-          <p className="text-base text-gray-600">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">ID Verification Management</h1>
+          <p className="text-sm sm:text-base text-gray-600">
             ID verification is optional for users but highly recommended. Review uploaded documents and approve
             trusted profiles so they appear with a Verified ID badge across the app.
           </p>
@@ -118,8 +129,8 @@ export default function AdminVerificationsPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 p-4 sm:p-6 md:p-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
             Pending ID Verifications ({users.length})
           </h2>
 
@@ -132,9 +143,9 @@ export default function AdminVerificationsPage() {
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="border rounded-lg p-6 hover:shadow-md transition-shadow"
+                  className="border rounded-2xl sm:rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow"
                 >
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">User Information</h3>
                       <div className="space-y-2 text-sm">
@@ -173,7 +184,7 @@ export default function AdminVerificationsPage() {
                       <h3 className="font-semibold text-gray-900 mb-2">ID Document</h3>
                       <div className="mb-4">
                         {user.idDocumentUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                          <div className="relative w-full max-w-md h-80">
+                          <div className="relative w-full max-w-md h-48 sm:h-80">
                             <Image
                               src={user.idDocumentUrl}
                               alt="ID Document"
@@ -182,13 +193,13 @@ export default function AdminVerificationsPage() {
                             />
                           </div>
                         ) : (
-                          <div className="border rounded-lg p-4 bg-gray-50">
-                            <p className="text-sm text-gray-600 mb-2">PDF Document</p>
+                          <div className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+                            <p className="text-xs sm:text-sm text-gray-600 mb-2">PDF Document</p>
                             <a
                               href={user.idDocumentUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-primary-600 hover:text-primary-700 underline"
+                              className="text-primary-600 hover:text-primary-700 underline text-sm sm:text-base"
                             >
                               View/Download PDF
                             </a>
@@ -198,18 +209,18 @@ export default function AdminVerificationsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex space-x-4 pt-6 border-t">
+                  <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t">
                     <button
                       onClick={() => handleVerify(user.id, true)}
                       disabled={processing === user.id}
-                      className="flex-1 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
                     >
                       {processing === user.id ? 'Processing...' : '✓ Approve Verification'}
                     </button>
                     <button
                       onClick={() => handleVerify(user.id, false)}
                       disabled={processing === user.id}
-                      className="flex-1 px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
                     >
                       {processing === user.id ? 'Processing...' : '✗ Reject Verification'}
                     </button>

@@ -263,11 +263,22 @@ export default function QuestionnairePage() {
   const waitingForMyAnswer = theirQuestionnaire && theirQuestionnaire.status === 'pending' && !theirQuestionnaireAnswered
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 safe-top safe-bottom pb-24 md:pb-12 relative">
       <AnimatedBackground intensity="subtle" />
       <div className="relative z-10">
         <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+        
+        <div className="mb-6 hidden md:block">
           <Link href="/messaging" className="text-primary-600 hover:text-primary-700">
             ← Back to Messages
           </Link>
@@ -331,7 +342,7 @@ export default function QuestionnairePage() {
                           onChange={(e) => handleQuestionChange(index, e.target.value)}
                           placeholder={`Question ${index + 1}`}
                           rows={2}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                         />
                         {newQuestions.length > 1 && (
                           <button

@@ -178,9 +178,20 @@ export default function BrowsePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-20 md:pb-10 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
       <AnimatedBackground intensity="subtle" />
       <div className="max-w-6xl mx-auto relative z-10">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+        
         {/* Header Section - Better Spacing & Alignment */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           <div className="space-y-1">
@@ -400,9 +411,9 @@ export default function BrowsePage() {
                               setSelectedProfile(profile)
                               setShowRequestModal(true)
                             }}
-                            className="flex-1 font-semibold shadow-md"
+                            className="flex-1 font-semibold shadow-md min-h-[44px] text-sm sm:text-base px-3 sm:px-4"
                           >
-                            Like & Request
+                            <span className="truncate">Like & Request</span>
                           </Button>
 
                           <button

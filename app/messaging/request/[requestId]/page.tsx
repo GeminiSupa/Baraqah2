@@ -130,7 +130,8 @@ export default function RequestDetailPage() {
       })
 
       if (response.ok) {
-        router.push('/messaging')
+        // Redirect to compatibility questionnaire after accepting
+        router.push(`/messaging/compatibility/${requestId}`)
       } else {
         const data = await response.json()
         setError(data.error || 'Failed to accept request')
@@ -208,9 +209,20 @@ export default function RequestDetailPage() {
   const primaryPhoto = profile.photos?.find(p => p.isPrimary)
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 safe-top safe-bottom pb-24 md:pb-12">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+        
+        <div className="mb-6 hidden md:block">
           <Link href="/messaging" className="text-primary-600 hover:text-primary-700">
             ← Back to Messages
           </Link>
@@ -383,18 +395,18 @@ export default function RequestDetailPage() {
 
           {/* Action Buttons */}
           {request.status === 'pending' && (
-            <div className="mt-8 flex space-x-4">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={handleAccept}
                 disabled={processing}
-                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 sm:px-6 py-3 sm:py-3.5 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm sm:text-base min-h-[44px] shadow-md ios-press"
               >
                 {processing ? 'Processing...' : 'Accept Request'}
               </button>
               <button
                 onClick={handleReject}
                 disabled={processing}
-                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 sm:px-6 py-3 sm:py-3.5 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm sm:text-base min-h-[44px] shadow-md ios-press"
               >
                 {processing ? 'Processing...' : 'Decline Request'}
               </button>

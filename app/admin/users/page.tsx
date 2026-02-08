@@ -178,14 +178,25 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+
+        <div className="mb-6 sm:mb-8">
+          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium text-sm sm:text-base">
             ← Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">User Management</h1>
-          <p className="text-base text-gray-600">View, search, suspend, and activate user accounts</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">User Management</h1>
+          <p className="text-sm sm:text-base text-gray-600">View, search, suspend, and activate user accounts</p>
         </div>
 
         {error && (
@@ -201,8 +212,8 @@ export default function AdminUsersPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
               <div className="flex space-x-2">
@@ -212,11 +223,11 @@ export default function AdminUsersPage() {
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Email or phone..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white text-sm sm:text-base"
                 />
                 <button
                   onClick={handleSearch}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  className="px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm sm:text-base min-h-[44px]"
                 >
                   Search
                 </button>
@@ -231,7 +242,7 @@ export default function AdminUsersPage() {
                   setStatusFilter(e.target.value)
                   setPage(1)
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white text-sm sm:text-base min-h-[44px]"
               >
                 <option value="all">All Users</option>
                 <option value="active">Active</option>
@@ -241,25 +252,108 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
+        {/* Users Table - Mobile Card View */}
+        <div className="md:hidden space-y-4 mb-6">
+          {users.map((user) => (
+            <div key={user.id} className="bg-white rounded-2xl shadow-xl border border-gray-100/50 p-4">
+              <div className="space-y-3">
+                <div>
+                  <div className="text-sm font-medium text-gray-900 truncate">{user.email}</div>
+                  {user.profile && (
+                    <div className="text-sm text-gray-500">
+                      {user.profile.firstName} {user.profile.lastName}
+                    </div>
+                  )}
+                  {user.phone && (
+                    <div className="text-xs text-gray-500">{user.phone}</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 text-xs">
+                  <span className={user.emailVerified ? 'text-green-600' : 'text-red-600'}>
+                    Email: {user.emailVerified ? '✓' : '✗'}
+                  </span>
+                  <span className={user.phoneVerified ? 'text-green-600' : 'text-red-600'}>
+                    Phone: {user.phoneVerified ? '✓' : '✗'}
+                  </span>
+                  <span className={user.idVerified ? 'text-green-600' : 'text-red-600'}>
+                    ID: {user.idVerified ? '✓' : '✗'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    {user.isSuspended ? (
+                      <span className="px-2 py-1 inline-flex text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                        Suspended
+                      </span>
+                    ) : user.profileActive ? (
+                      <span className="px-2 py-1 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                        Inactive
+                      </span>
+                    )}
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {user.isSuspended ? (
+                      <button
+                        onClick={() => handleAction(user.id, 'activate', user.email)}
+                        disabled={processing === user.id}
+                        className="px-3 py-1.5 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 min-h-[36px]"
+                      >
+                        Activate
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleAction(user.id, 'suspend', user.email)}
+                        disabled={processing === user.id}
+                        className="px-3 py-1.5 text-xs bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:opacity-50 min-h-[36px]"
+                      >
+                        Suspend
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleAction(user.id, 'delete', user.email)}
+                      disabled={processing === user.id}
+                      className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 min-h-[36px]"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                {user.suspensionReason && (
+                  <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+                    {user.suspensionReason}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Users Table - Desktop View */}
+        <div className="hidden md:block bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Verification
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Created
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -267,7 +361,7 @@ export default function AdminUsersPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {users.map((user) => (
                   <tr key={user.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{user.email}</div>
                         {user.profile && (
@@ -280,7 +374,7 @@ export default function AdminUsersPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4">
                       <div className="text-sm">
                         <div className={user.emailVerified ? 'text-green-600' : 'text-red-600'}>
                           Email: {user.emailVerified ? '✓' : '✗'}
@@ -293,7 +387,7 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 lg:px-6 py-4">
                       <div className="text-sm">
                         {user.isSuspended ? (
                           <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
@@ -310,37 +404,39 @@ export default function AdminUsersPage() {
                         )}
                       </div>
                       {user.suspensionReason && (
-                        <div className="text-xs text-gray-500 mt-1">{user.suspensionReason}</div>
+                        <div className="text-xs text-gray-500 mt-1 max-w-xs truncate">{user.suspensionReason}</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 lg:px-6 py-4 text-sm text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      {user.isSuspended ? (
+                    <td className="px-4 lg:px-6 py-4 text-sm font-medium">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        {user.isSuspended ? (
+                          <button
+                            onClick={() => handleAction(user.id, 'activate', user.email)}
+                            disabled={processing === user.id}
+                            className="px-3 py-1.5 text-green-600 hover:text-green-900 disabled:opacity-50 text-xs sm:text-sm min-h-[36px]"
+                          >
+                            Activate
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleAction(user.id, 'suspend', user.email)}
+                            disabled={processing === user.id}
+                            className="px-3 py-1.5 text-yellow-600 hover:text-yellow-900 disabled:opacity-50 text-xs sm:text-sm min-h-[36px]"
+                          >
+                            Suspend
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleAction(user.id, 'activate', user.email)}
+                          onClick={() => handleAction(user.id, 'delete', user.email)}
                           disabled={processing === user.id}
-                          className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                          className="px-3 py-1.5 text-red-600 hover:text-red-900 disabled:opacity-50 text-xs sm:text-sm min-h-[36px]"
                         >
-                          Activate
+                          Delete
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => handleAction(user.id, 'suspend', user.email)}
-                          disabled={processing === user.id}
-                          className="text-yellow-600 hover:text-yellow-900 disabled:opacity-50"
-                        >
-                          Suspend
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleAction(user.id, 'delete', user.email)}
-                        disabled={processing === user.id}
-                        className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                      >
-                        Delete
-                      </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -400,8 +496,8 @@ export default function AdminUsersPage() {
 
       {/* Suspend Modal */}
       {showSuspendModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 safe-top safe-bottom">
+          <div className="relative top-10 sm:top-20 mx-auto p-4 sm:p-5 border w-[90%] sm:w-96 max-w-md shadow-lg rounded-md bg-white m-4 sm:m-0">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Suspend User</h3>
             <p className="text-sm text-gray-600 mb-4">
               Are you sure you want to suspend <strong>{showSuspendModal.email}</strong>?
@@ -442,8 +538,8 @@ export default function AdminUsersPage() {
 
       {/* Delete Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 safe-top safe-bottom">
+          <div className="relative top-10 sm:top-20 mx-auto p-4 sm:p-5 border w-[90%] sm:w-96 max-w-md shadow-lg rounded-md bg-white m-4 sm:m-0">
             <h3 className="text-lg font-bold text-red-600 mb-4">Delete User</h3>
             <div className="mb-4">
               <p className="text-sm text-gray-700 mb-2">

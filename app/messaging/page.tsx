@@ -116,10 +116,21 @@ export default function MessagingPage() {
   const approvedRequests = requests.filter(r => r.status === 'approved')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-20 md:pb-10 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
       <AnimatedBackground intensity="subtle" />
       <div className="relative z-10">
       <div className="max-w-4xl mx-auto">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+        
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Messages</h1>
           <p className="text-base text-gray-600">Manage your message requests and conversations</p>
@@ -184,19 +195,19 @@ export default function MessagingPage() {
                       <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <Link
                           href={`/messaging/request/${request.id}`}
-                          className="px-5 py-2.5 bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md"
+                          className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
                         >
                           View Profile
                         </Link>
                         <button
                           onClick={() => handleApprove(request.id)}
-                          className="px-5 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 text-base font-semibold ios-press shadow-md"
+                          className="px-5 py-3 min-h-[44px] bg-green-600 text-white rounded-xl hover:bg-green-700 text-base font-semibold ios-press shadow-md"
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => handleReject(request.id)}
-                          className="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 text-base font-semibold ios-press shadow-md"
+                          className="px-5 py-3 min-h-[44px] bg-red-600 text-white rounded-xl hover:bg-red-700 text-base font-semibold ios-press shadow-md"
                         >
                           Reject
                         </button>
@@ -248,30 +259,33 @@ export default function MessagingPage() {
                           </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                          {(request.connectionStatus === 'accepted' || 
-                            request.connectionStatus === 'questionnaire_sent' ||
+                          {request.connectionStatus === 'accepted' && (
+                            <Link
+                              href={`/messaging/compatibility/${request.id}`}
+                              className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
+                            >
+                              Complete Compatibility Questions
+                            </Link>
+                          )}
+                          {(request.connectionStatus === 'questionnaire_sent' ||
                             request.connectionStatus === 'questionnaire_completed') && (
                             <Link
                               href={`/messaging/questionnaire/${request.id}`}
-                              className={`px-5 py-2.5 text-white rounded-xl hover:opacity-90 text-base font-semibold ios-press text-center shadow-md ${
+                              className={`px-5 py-3 min-h-[44px] text-white rounded-xl hover:opacity-90 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center ${
                                 request.connectionStatus === 'questionnaire_sent' 
                                   ? 'bg-orange-500 animate-pulse' 
-                                  : request.connectionStatus === 'questionnaire_completed'
-                                  ? 'bg-green-600'
-                                  : 'bg-iosBlue'
+                                  : 'bg-green-600'
                               }`}
                             >
                               {request.connectionStatus === 'questionnaire_sent' 
-                                ? '📩 Answer Questions' 
-                                : request.connectionStatus === 'questionnaire_completed'
-                                ? 'View Answers'
-                                : 'Questionnaire'}
+                                ? '📩 Answer Custom Questions' 
+                                : 'View Custom Questions'}
                             </Link>
                           )}
                           {canMessage && (
                             <Link
                               href={`/messaging/${otherUser?.id}`}
-                              className="px-5 py-2.5 bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md"
+                              className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
                             >
                               Message
                             </Link>

@@ -126,14 +126,25 @@ export default function AdminReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
+        {/* Mobile Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+        >
+          <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-base font-medium">Back</span>
+        </button>
+
+        <div className="mb-6 sm:mb-8">
+          <Link href="/admin" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium text-sm sm:text-base">
             ← Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Reports Management</h1>
-          <p className="text-base text-gray-600">Review user reports and take appropriate action</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Reports Management</h1>
+          <p className="text-sm sm:text-base text-gray-600">Review user reports and take appropriate action</p>
         </div>
 
         {error && (
@@ -149,8 +160,8 @@ export default function AdminReportsPage() {
         )}
 
         {/* Status Filter */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <div className="flex space-x-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
             {['pending', 'reviewed', 'resolved', 'dismissed', 'all'].map((status) => (
               <button
                 key={status}
@@ -158,7 +169,7 @@ export default function AdminReportsPage() {
                   setStatusFilter(status)
                   setPage(1)
                 }}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium min-h-[44px] ${
                   statusFilter === status
                     ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -173,7 +184,7 @@ export default function AdminReportsPage() {
         {/* Reports List */}
         <div className="space-y-4">
           {reports.map((report) => (
-            <div key={report.id} className="bg-white shadow rounded-lg p-6">
+            <div key={report.id} className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100/50 p-4 sm:p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -222,7 +233,7 @@ export default function AdminReportsPage() {
                 <div className="flex space-x-4 pt-4 border-t">
                   <button
                     onClick={() => setSelectedReport(report)}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm sm:text-base min-h-[44px]"
                   >
                     Review Report
                   </button>
@@ -266,8 +277,8 @@ export default function AdminReportsPage() {
 
       {/* Review Modal */}
       {selectedReport && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 safe-top safe-bottom">
+          <div className="relative top-10 sm:top-20 mx-auto p-4 sm:p-5 border w-[90%] sm:w-full max-w-2xl shadow-lg rounded-md bg-white m-4 sm:m-0">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Review Report</h3>
 
             <div className="mb-4 space-y-3">

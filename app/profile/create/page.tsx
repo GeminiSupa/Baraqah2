@@ -24,19 +24,6 @@ export default function CreateProfilePage() {
     hijabPreference: '',
     photoPrivacy: 'private',
     profileVisibility: 'public',
-    // Questionnaire fields
-    marriageUnderstanding: '',
-    lifeGoals: '',
-    religiousPracticeImportance: '',
-    childrenPreference: '',
-    partnerTraits: '',
-    marriageRoles: '',
-    workLifeBalance: '',
-    conflictResolution: '',
-    happyHomeVision: '',
-    dealBreakers: '',
-    spiritualGrowth: '',
-    hobbiesInterests: '',
   })
 
   useEffect(() => {
@@ -105,6 +92,22 @@ export default function CreateProfilePage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={session?.user?.email || ''}
+                  disabled
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500 mt-1">This is your registered email address</p>
+              </div>
+
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
                   First Name *
@@ -248,7 +251,10 @@ export default function CreateProfilePage() {
             </div>
 
             <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Islamic/Cultural Preferences</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Islamic/Cultural Preferences (Optional)</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                These preferences are optional. You can fill them now or update them later. Detailed compatibility questions will be asked when you connect with someone.
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="sectPreference" className="block text-sm font-medium text-gray-700 mb-1">
@@ -261,7 +267,7 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="">Select preference</option>
+                    <option value="">Select preference (optional)</option>
                     <option value="sunni">Sunni</option>
                     <option value="shia">Shia</option>
                     <option value="no-preference">No Preference</option>
@@ -279,7 +285,7 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="">Select practice</option>
+                    <option value="">Select practice (optional)</option>
                     <option value="regular">Regular</option>
                     <option value="sometimes">Sometimes</option>
                     <option value="special-occasions">Special Occasions</option>
@@ -297,211 +303,11 @@ export default function CreateProfilePage() {
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
                   >
-                    <option value="">Select preference</option>
+                    <option value="">Select preference (optional)</option>
                     <option value="required">Required</option>
                     <option value="preferred">Preferred</option>
                     <option value="no-preference">No Preference</option>
                   </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Marriage Compatibility Questions</h2>
-              <p className="text-sm text-gray-600 mb-6">
-                Please answer these questions thoughtfully. Your answers will help potential matches understand your values and expectations.
-              </p>
-              <div className="space-y-6">
-                <div>
-                  <label htmlFor="marriageUnderstanding" className="block text-sm font-medium text-gray-700 mb-1">
-                    1. What is your understanding of a successful marriage, and what role do you see religion/deen playing in it daily? *
-                  </label>
-                  <textarea
-                    id="marriageUnderstanding"
-                    name="marriageUnderstanding"
-                    required
-                    rows={4}
-                    value={formData.marriageUnderstanding}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Discuss salah together, halal lifestyle, supporting each other's ibadah..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="lifeGoals" className="block text-sm font-medium text-gray-700 mb-1">
-                    2. What are your long-term life goals or ambitions (career, personal growth, or contributions to family/society)? *
-                  </label>
-                  <textarea
-                    id="lifeGoals"
-                    name="lifeGoals"
-                    required
-                    rows={4}
-                    value={formData.lifeGoals}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Building financial stability, pursuing higher studies, helping community, or traveling for Umrah/Hajj..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="religiousPracticeImportance" className="block text-sm font-medium text-gray-700 mb-1">
-                    3. How important is religious practice to you right now (e.g., frequency of salah, Quran reading, following Sunnah, modesty in daily life)? *
-                  </label>
-                  <textarea
-                    id="religiousPracticeImportance"
-                    name="religiousPracticeImportance"
-                    required
-                    rows={4}
-                    value={formData.religiousPracticeImportance}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="Be specific about your level without judging — this shows compatibility in values..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="childrenPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                    4. How many children do you ideally want in the future, and what kind of upbringing/religious/moral values do you want to instill in them? *
-                  </label>
-                  <textarea
-                    id="childrenPreference"
-                    name="childrenPreference"
-                    required
-                    rows={4}
-                    value={formData.childrenPreference}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., 2–3 kids, focus on Islamic education, good akhlaq, balanced modern + deeni tarbiyat..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="partnerTraits" className="block text-sm font-medium text-gray-700 mb-1">
-                    5. What kind of personality traits or character qualities are most important to you in a life partner (beyond basics like education or looks)? *
-                  </label>
-                  <textarea
-                    id="partnerTraits"
-                    name="partnerTraits"
-                    required
-                    rows={4}
-                    value={formData.partnerTraits}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Kindness, patience, honesty, sense of humor, ability to communicate openly, supportive nature..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="marriageRoles" className="block text-sm font-medium text-gray-700 mb-1">
-                    6. How do you envision the roles and responsibilities in marriage (e.g., household duties, financial decisions, in-laws involvement)? *
-                  </label>
-                  <textarea
-                    id="marriageRoles"
-                    name="marriageRoles"
-                    required
-                    rows={4}
-                    value={formData.marriageRoles}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Mutual respect, shared decisions, helping each other, maintaining family ties..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="workLifeBalance" className="block text-sm font-medium text-gray-700 mb-1">
-                    7. What are your views on work-life balance after marriage (e.g., if both work, living arrangements, time for family/ibadah)? *
-                  </label>
-                  <textarea
-                    id="workLifeBalance"
-                    name="workLifeBalance"
-                    required
-                    rows={4}
-                    value={formData.workLifeBalance}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="Especially relevant if you&apos;re in Germany/Europe — discuss career vs. family priorities..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="conflictResolution" className="block text-sm font-medium text-gray-700 mb-1">
-                    8. How do you handle conflicts or differences in a relationship? *
-                  </label>
-                  <textarea
-                    id="conflictResolution"
-                    name="conflictResolution"
-                    required
-                    rows={4}
-                    value={formData.conflictResolution}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Through calm discussion, seeking advice from elders/Quran/Sunnah, forgiveness..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="happyHomeVision" className="block text-sm font-medium text-gray-700 mb-1">
-                    9. What does a happy, peaceful home look like to you in the long run (daily routines, family time, holidays, etc.)? *
-                  </label>
-                  <textarea
-                    id="happyHomeVision"
-                    name="happyHomeVision"
-                    required
-                    rows={4}
-                    value={formData.happyHomeVision}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Family prayers, home-cooked meals, quality time, halal outings..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="dealBreakers" className="block text-sm font-medium text-gray-700 mb-1">
-                    10. Are there any non-negotiables or deal-breakers for you in a partner (beyond the form&apos;s filters like sect/caste)? *
-                  </label>
-                  <textarea
-                    id="dealBreakers"
-                    name="dealBreakers"
-                    required
-                    rows={4}
-                    value={formData.dealBreakers}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="e.g., Must pray regularly, no interest in lavish lifestyle, values simplicity, open to relocation if needed..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="spiritualGrowth" className="block text-sm font-medium text-gray-700 mb-1">
-                    11. How do you see this marriage helping both of you grow closer to Allah and achieve Jannah together? *
-                  </label>
-                  <textarea
-                    id="spiritualGrowth"
-                    name="spiritualGrowth"
-                    required
-                    rows={4}
-                    value={formData.spiritualGrowth}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="A spiritual angle many appreciate in rishta profiles..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="hobbiesInterests" className="block text-sm font-medium text-gray-700 mb-1">
-                    12. What hobbies, interests, or ways do you like to spend free time (and how would you include a spouse in them)? *
-                  </label>
-                  <textarea
-                    id="hobbiesInterests"
-                    name="hobbiesInterests"
-                    required
-                    rows={4}
-                    value={formData.hobbiesInterests}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                    placeholder="Share your interests and how you'd like to share them with your spouse..."
-                  />
                 </div>
               </div>
             </div>

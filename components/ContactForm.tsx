@@ -87,7 +87,7 @@ export function ContactForm() {
             required
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue"
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
             placeholder="Your name"
           />
         </div>
@@ -103,7 +103,7 @@ export function ContactForm() {
             required
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue"
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
             placeholder="your.email@example.com"
           />
         </div>
@@ -119,7 +119,7 @@ export function ContactForm() {
             required
             value={formData.subject}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue"
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
             placeholder="What is this regarding?"
           />
         </div>
@@ -135,7 +135,7 @@ export function ContactForm() {
             rows={5}
             value={formData.message}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue resize-y"
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue resize-y text-gray-900 bg-white"
             placeholder="Tell us how we can help you..."
             minLength={10}
           />

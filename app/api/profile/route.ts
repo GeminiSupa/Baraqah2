@@ -14,24 +14,25 @@ const profileSchema = z.object({
   profession: z.string().optional(),
   location: z.string().optional(),
   city: z.string().min(1),
+  religiousBackground: z.string().optional(),
   sectPreference: z.string().optional(),
   prayerPractice: z.string().optional(),
   hijabPreference: z.string().optional(),
   photoPrivacy: z.string().default('private'),
   profileVisibility: z.string().default('public'),
-  // Questionnaire fields
-  marriageUnderstanding: z.string().min(1),
-  lifeGoals: z.string().min(1),
-  religiousPracticeImportance: z.string().min(1),
-  childrenPreference: z.string().min(1),
-  partnerTraits: z.string().min(1),
-  marriageRoles: z.string().min(1),
-  workLifeBalance: z.string().min(1),
-  conflictResolution: z.string().min(1),
-  happyHomeVision: z.string().min(1),
-  dealBreakers: z.string().min(1),
-  spiritualGrowth: z.string().min(1),
-  hobbiesInterests: z.string().min(1),
+  // Questionnaire fields - all optional now (filled during messaging flow)
+  marriageUnderstanding: z.string().optional(),
+  lifeGoals: z.string().optional(),
+  religiousPracticeImportance: z.string().optional(),
+  childrenPreference: z.string().optional(),
+  partnerTraits: z.string().optional(),
+  marriageRoles: z.string().optional(),
+  workLifeBalance: z.string().optional(),
+  conflictResolution: z.string().optional(),
+  happyHomeVision: z.string().optional(),
+  dealBreakers: z.string().optional(),
+  spiritualGrowth: z.string().optional(),
+  hobbiesInterests: z.string().optional(),
 })
 
 // Helper to convert profile from snake_case to camelCase
@@ -48,6 +49,7 @@ function formatProfile(profile: any) {
     profession: profile.profession,
     location: profile.location,
     city: profile.city,
+    religiousBackground: profile.religious_background,
     sectPreference: profile.sect_preference,
     prayerPractice: profile.prayer_practice,
     hijabPreference: profile.hijab_preference,
@@ -166,25 +168,26 @@ export async function POST(req: NextRequest) {
       profession: data.profession || null,
       location: data.location || null,
       city: data.city,
+      religious_background: data.religiousBackground || null,
       sect_preference: data.sectPreference || null,
       prayer_practice: data.prayerPractice || null,
       hijab_preference: data.hijabPreference || null,
       photo_privacy: data.photoPrivacy,
       profile_visibility: data.profileVisibility,
       moderation_status: 'pending', // New profiles need admin approval
-      // Questionnaire fields
-      marriage_understanding: data.marriageUnderstanding,
-      life_goals: data.lifeGoals,
-      religious_practice_importance: data.religiousPracticeImportance,
-      children_preference: data.childrenPreference,
-      partner_traits: data.partnerTraits,
-      marriage_roles: data.marriageRoles,
-      work_life_balance: data.workLifeBalance,
-      conflict_resolution: data.conflictResolution,
-      happy_home_vision: data.happyHomeVision,
-      deal_breakers: data.dealBreakers,
-      spiritual_growth: data.spiritualGrowth,
-      hobbies_interests: data.hobbiesInterests,
+      // Questionnaire fields - optional, can be filled later
+      marriage_understanding: data.marriageUnderstanding || null,
+      life_goals: data.lifeGoals || null,
+      religious_practice_importance: data.religiousPracticeImportance || null,
+      children_preference: data.childrenPreference || null,
+      partner_traits: data.partnerTraits || null,
+      marriage_roles: data.marriageRoles || null,
+      work_life_balance: data.workLifeBalance || null,
+      conflict_resolution: data.conflictResolution || null,
+      happy_home_vision: data.happyHomeVision || null,
+      deal_breakers: data.dealBreakers || null,
+      spiritual_growth: data.spiritualGrowth || null,
+      hobbies_interests: data.hobbiesInterests || null,
     }
 
     const { data: profile, error: insertError } = await supabaseAdmin
@@ -246,6 +249,7 @@ export async function PUT(req: NextRequest) {
     if (data.profession !== undefined) updateData.profession = data.profession
     if (data.location !== undefined) updateData.location = data.location
     if (data.city !== undefined) updateData.city = data.city
+    if (data.religiousBackground !== undefined) updateData.religious_background = data.religiousBackground
     if (data.sectPreference !== undefined) updateData.sect_preference = data.sectPreference
     if (data.prayerPractice !== undefined) updateData.prayer_practice = data.prayerPractice
     if (data.hijabPreference !== undefined) updateData.hijab_preference = data.hijabPreference

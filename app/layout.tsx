@@ -3,6 +3,7 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 import { DisclaimerBanner } from '@/components/disclaimer-banner'
 import { Header } from '@/components/Header'
+import { MobileNavigation } from '@/components/MobileNavigation'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({
           <DisclaimerBanner />
           <Header />
           <main className="min-h-screen flex flex-col pb-16 md:pb-0">{children}</main>
+          <MobileNavigation />
           <footer className="border-t border-gray-100 bg-white/80 backdrop-blur-ios py-4 px-4 sm:px-6">
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
               <p className="text-center sm:text-left">

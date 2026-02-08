@@ -128,67 +128,90 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 bg-white rounded-ios-lg shadow-ios-lg border border-iosGray-4 z-50 max-h-[calc(100vh-8rem)] overflow-hidden flex flex-col">
-          <div className="p-4 border-b border-iosGray-4 flex items-center justify-between">
-            <h3 className="text-ios-title3 font-semibold text-gray-900">Notifications</h3>
-            {unreadCount > 0 && (
-              <span className="text-ios-footnote text-iosGray-1">
-                {unreadCount} new
-              </span>
-            )}
-          </div>
-
-          <div className="overflow-y-auto ios-scroll flex-1">
-            {loading ? (
-              <div className="p-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-iosBlue"></div>
+        <>
+          {/* Mobile Full Screen Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/20 z-40 md:hidden"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Notification Panel */}
+          <div className="fixed md:absolute right-0 top-0 md:top-auto md:mt-2 w-full md:w-80 lg:w-96 h-screen md:h-auto md:max-h-[calc(100vh-8rem)] bg-white rounded-none md:rounded-ios-lg shadow-ios-lg border-0 md:border border-iosGray-4 z-50 overflow-hidden flex flex-col safe-top safe-bottom">
+            {/* Header with Close Button */}
+            <div className="p-4 border-b border-iosGray-4 flex items-center justify-between flex-shrink-0">
+              <h3 className="text-lg md:text-ios-title3 font-semibold text-gray-900">Notifications</h3>
+              <div className="flex items-center gap-3">
+                {unreadCount > 0 && (
+                  <span className="text-xs md:text-ios-footnote text-iosGray-1">
+                    {unreadCount} new
+                  </span>
+                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="md:hidden p-2 -mr-2 ios-press rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  aria-label="Close notifications"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-            ) : notifications.length === 0 ? (
-              <div className="p-8 text-center">
-                <p className="text-ios-body text-iosGray-1">No notifications</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-iosGray-4">
-                {notifications.map((notification) => (
-                  <button
-                    key={notification.id}
-                    onClick={() => handleNotificationClick(notification.link)}
-                    className="w-full text-left p-4 hover:bg-iosGray-6 transition-colors ios-press"
-                  >
-                    <div className="flex items-start space-x-3">
-                      <span className="text-2xl flex-shrink-0">
-                        {getNotificationIcon(notification.type)}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-ios-body font-medium text-gray-900 truncate">
-                          {notification.title}
-                        </p>
-                        <p className="text-ios-footnote text-iosGray-1 mt-1 line-clamp-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-ios-caption1 text-iosGray-2 mt-1">
-                          {formatTime(notification.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {notifications.length > 0 && (
-            <div className="p-3 border-t border-iosGray-4">
-              <Link
-                href="/messaging"
-                onClick={() => setIsOpen(false)}
-                className="block text-center text-ios-body text-iosBlue hover:text-iosBlue-dark font-medium"
-              >
-                View All Messages
-              </Link>
             </div>
-          )}
-        </div>
+
+            {/* Notifications List */}
+            <div className="overflow-y-auto ios-scroll flex-1 px-0">
+              {loading ? (
+                <div className="p-8 text-center">
+                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-iosBlue"></div>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="p-8 text-center">
+                  <p className="text-sm md:text-ios-body text-iosGray-1">No notifications</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-iosGray-4">
+                  {notifications.map((notification) => (
+                    <button
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification.link)}
+                      className="w-full text-left p-4 hover:bg-iosGray-6 active:bg-iosGray-5 transition-colors ios-press min-h-[80px]"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl md:text-2xl flex-shrink-0 mt-0.5">
+                          {getNotificationIcon(notification.type)}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm md:text-ios-body font-medium text-gray-900 line-clamp-1 break-words">
+                            {notification.title}
+                          </p>
+                          <p className="text-xs md:text-ios-footnote text-iosGray-1 mt-1 line-clamp-2 break-words">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs md:text-ios-caption1 text-iosGray-2 mt-1.5">
+                            {formatTime(notification.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            {notifications.length > 0 && (
+              <div className="p-3 sm:p-4 border-t border-iosGray-4 flex-shrink-0">
+                <Link
+                  href="/messaging"
+                  onClick={() => setIsOpen(false)}
+                  className="block text-center text-sm md:text-ios-body text-iosBlue hover:text-iosBlue-dark font-medium py-2"
+                >
+                  View All Messages
+                </Link>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   )
