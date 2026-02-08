@@ -105,17 +105,16 @@ export async function POST(req: NextRequest) {
     if (uploadError) {
       console.error('Supabase upload error:', {
         message: uploadError.message,
-        statusCode: uploadError.statusCode,
-        error: uploadError.error,
+        name: uploadError.name,
         filePath,
         bucket: 'uploads'
       })
       
       // Provide more specific error messages
       let errorMessage = 'Failed to upload ID document'
-      if (uploadError.message?.includes('Bucket not found')) {
+      if (uploadError.message?.includes('Bucket not found') || uploadError.message?.includes('not found')) {
         errorMessage = 'Storage bucket not configured. Please contact support.'
-      } else if (uploadError.message?.includes('new row violates row-level security')) {
+      } else if (uploadError.message?.includes('new row violates row-level security') || uploadError.message?.includes('permission')) {
         errorMessage = 'Storage permissions error. Please contact support.'
       } else if (uploadError.message) {
         errorMessage = `Upload failed: ${uploadError.message}`
@@ -126,8 +125,7 @@ export async function POST(req: NextRequest) {
           error: errorMessage,
           details: process.env.NODE_ENV === 'development' ? {
             message: uploadError.message,
-            statusCode: uploadError.statusCode,
-            error: uploadError.error
+            name: uploadError.name
           } : undefined
         },
         { status: 500 }
