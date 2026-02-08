@@ -19,16 +19,18 @@ export async function GET(
 
     const { userId } = params
 
-    // Verify conversation exists (approved request)
+    // Verify conversation exists (approved request with valid connection status)
+    // Allow messaging if status is approved AND connection_status allows messaging
     const { data: approvedRequest } = await supabaseAdmin
       .from('message_requests')
-      .select('id')
+      .select('id, connection_status')
       .or(`and(sender_id.eq.${session.user.id},receiver_id.eq.${userId},status.eq.approved),and(sender_id.eq.${userId},receiver_id.eq.${session.user.id},status.eq.approved)`)
+      .in('connection_status', ['questionnaire_completed', 'connected'])
       .single()
 
     if (!approvedRequest) {
       return NextResponse.json(
-        { error: 'Conversation not found or not approved' },
+        { error: 'Conversation not found or not approved. Please complete the compatibility questionnaire first.' },
         { status: 404 }
       )
     }

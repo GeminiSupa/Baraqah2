@@ -69,6 +69,9 @@ export default function MessagingPage() {
         return
       }
       fetchRequests()
+      // Poll for new requests every 10 seconds
+      const interval = setInterval(fetchRequests, 10000)
+      return () => clearInterval(interval)
     }
   }, [status, session, router, fetchRequests])
 
@@ -236,7 +239,7 @@ export default function MessagingPage() {
               <div className="space-y-4">
                 {approvedRequests.map((request) => {
                   const otherUser = requestType === 'received' ? request.sender : request.receiver
-                  const canMessage = request.connectionStatus === 'connected'
+                  const canMessage = request.connectionStatus === 'connected' || request.connectionStatus === 'questionnaire_completed'
                   
                   return (
                     <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
@@ -274,22 +277,31 @@ export default function MessagingPage() {
                               {t('messaging.completeCompatibility')}
                             </Link>
                           )}
-                          {(request.connectionStatus === 'questionnaire_sent' ||
-                            request.connectionStatus === 'questionnaire_completed') && (
+                          {request.connectionStatus === 'questionnaire_sent' && (
                             <Link
                               href={`/messaging/questionnaire/${request.id}`}
-                              className={`px-5 py-3 min-h-[44px] text-white rounded-xl hover:opacity-90 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center ${
-                                request.connectionStatus === 'questionnaire_sent' 
-                                  ? 'bg-orange-500 animate-pulse' 
-                                  : 'bg-green-600'
-                              }`}
+                              className="px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center animate-pulse"
                             >
-                              {request.connectionStatus === 'questionnaire_sent' 
-                                ? t('messaging.answerCustomQuestions') 
-                                : t('messaging.viewCustomQuestions')}
+                              {t('messaging.answerCustomQuestions')}
                             </Link>
                           )}
-                          {canMessage && (
+                          {request.connectionStatus === 'questionnaire_completed' && (
+                            <>
+                              <Link
+                                href={`/messaging/questionnaire/${request.id}`}
+                                className="px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
+                              >
+                                {t('messaging.viewCustomQuestions')}
+                              </Link>
+                              <Link
+                                href={`/messaging/${otherUser?.id}`}
+                                className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
+                              >
+                                {t('messaging.sendMessage')}
+                              </Link>
+                            </>
+                          )}
+                          {canMessage && request.connectionStatus !== 'questionnaire_completed' && (
                             <Link
                               href={`/messaging/${otherUser?.id}`}
                               className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"

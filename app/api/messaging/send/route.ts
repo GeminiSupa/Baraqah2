@@ -31,16 +31,18 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check if there's an approved message request
+    // Check if there's an approved message request with valid connection status
+    // Allow messaging if status is approved AND connection_status allows messaging
     const { data: approvedRequest } = await supabaseAdmin
       .from('message_requests')
-      .select('id')
+      .select('id, connection_status')
       .or(`and(sender_id.eq.${session.user.id},receiver_id.eq.${receiverId},status.eq.approved),and(sender_id.eq.${receiverId},receiver_id.eq.${session.user.id},status.eq.approved)`)
+      .in('connection_status', ['questionnaire_completed', 'connected'])
       .single()
 
     if (!approvedRequest) {
       return NextResponse.json(
-        { error: 'Message request must be approved first' },
+        { error: 'Message request must be approved and questionnaire completed first. Please complete the compatibility questionnaire.' },
         { status: 403 }
       )
     }

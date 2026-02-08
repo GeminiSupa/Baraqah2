@@ -171,6 +171,7 @@ export function Header() {
                   >
                     <div className="relative w-9 h-9 sm:w-10 sm:h-10 md:w-9 md:h-9 rounded-full overflow-hidden border-2 sm:border-[2.5px] border-gray-300 flex-shrink-0 bg-iosBlue shadow-sm">
                       {profilePhoto ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={profilePhoto}
                           alt={displayName}

@@ -36,6 +36,8 @@ export default function CompatibilityQuestionnairePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [bothCompleted, setBothCompleted] = useState(false)
   const [step, setStep] = useState<'religious-background' | 'questions'>('religious-background')
   const [religiousBackground, setReligiousBackground] = useState('')
   const [userReligiousBackground, setUserReligiousBackground] = useState<string | null>(null)
@@ -217,8 +219,26 @@ export default function CompatibilityQuestionnairePage() {
         const senderProfile = senderProfileResponse.ok ? await senderProfileResponse.json() : null
         const receiverProfile = receiverProfileResponse.ok ? await receiverProfileResponse.json() : null
         
-        const senderCompleted = senderProfile?.profile?.marriageUnderstanding
-        const receiverCompleted = receiverProfile?.profile?.marriageUnderstanding
+        // Improved completion check - verify multiple required fields
+        const checkCompletion = (profile: any) => {
+          if (!profile?.profile) return false
+          const p = profile.profile
+          const isMuslim = p.religiousBackground === 'Muslim'
+          
+          // Common required fields for all users
+          const commonFields = p.marriageUnderstanding && p.lifeGoals && p.partnerTraits && p.hobbiesInterests
+          
+          if (isMuslim) {
+            // For Muslim users, also check Islamic-specific fields
+            return commonFields && p.spiritualGrowth && p.sectPreference
+          } else {
+            // For non-Muslim users, check general compatibility fields
+            return commonFields && p.childrenPreference && p.conflictResolution
+          }
+        }
+        
+        const senderCompleted = checkCompletion(senderProfile)
+        const receiverCompleted = checkCompletion(receiverProfile)
         
         // If both have completed, update status and allow messaging
         if (senderCompleted && receiverCompleted) {
@@ -229,10 +249,26 @@ export default function CompatibilityQuestionnairePage() {
             },
             body: JSON.stringify({ connectionStatus: 'questionnaire_completed' }),
           })
-          router.push(`/messaging/${request?.sender?.id === session?.user?.id ? request?.receiver?.id : request?.sender?.id}`)
+          // Show success and options
+          setBothCompleted(true)
+          setSuccess(true)
+          setError('')
         } else {
-          // Just redirect to messaging page - other user still needs to complete
-          router.push('/messaging')
+          // Update connection status to show progress
+          await fetch(`/api/messaging/request/${requestId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ connectionStatus: 'accepted' }),
+          })
+          // Show message that other user needs to complete
+          setSuccess(true)
+          setError('')
+          // Redirect to messaging page with info after showing message
+          setTimeout(() => {
+            router.push('/messaging')
+          }, 2000)
         }
       } else {
         setError(data.error || 'Failed to save answers')
@@ -307,6 +343,41 @@ export default function CompatibilityQuestionnairePage() {
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
                 {error}
+              </div>
+            )}
+
+            {success && bothCompleted && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
+                <p className="font-semibold mb-2">✅ Questionnaire Completed!</p>
+                <p className="text-sm mb-4">Both of you have completed the compatibility questionnaire. You can now message each other or send custom questions.</p>
+                <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      const otherUserId = request?.sender?.id === session?.user?.id 
+                        ? request?.receiver?.id 
+                        : request?.sender?.id
+                      if (otherUserId) {
+                        router.push(`/messaging/${otherUserId}`)
+                      }
+                    }}
+                    className="px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-semibold"
+                  >
+                    Start Messaging
+                  </button>
+                  <button
+                    onClick={() => router.push(`/messaging/questionnaire/${requestId}`)}
+                    className="px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 font-semibold"
+                  >
+                    Send Custom Questions
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {success && !bothCompleted && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4">
+                <p className="font-semibold">Your questionnaire has been saved!</p>
+                <p className="text-sm mt-1">Waiting for {otherUserName} to complete their questionnaire. You&apos;ll be notified when they&apos;re done.</p>
               </div>
             )}
 
