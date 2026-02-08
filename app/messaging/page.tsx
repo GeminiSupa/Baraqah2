@@ -46,11 +46,23 @@ export default function MessagingPage() {
 
   const fetchRequests = useCallback(async () => {
     try {
+      setLoading(true)
       const response = await fetch(`/api/messaging/requests?type=${requestType}`)
       const data = await response.json()
 
       if (response.ok) {
-        setRequests(data.requests || [])
+        const fetchedRequests = data.requests || []
+        setRequests(fetchedRequests)
+        // Debug log to help identify issues
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Fetched ${fetchedRequests.length} ${requestType} requests:`, fetchedRequests.map((r: MessageRequest) => ({
+            id: r.id,
+            status: r.status,
+            connectionStatus: r.connectionStatus
+          })))
+        }
+      } else {
+        console.error('Failed to fetch requests:', data.error)
       }
     } catch (error) {
       console.error('Error fetching requests:', error)
@@ -75,6 +87,13 @@ export default function MessagingPage() {
     }
   }, [status, session, router, fetchRequests])
 
+  // Refetch when requestType changes
+  useEffect(() => {
+    if (status === 'authenticated' && !session?.user?.isAdmin) {
+      fetchRequests()
+    }
+  }, [requestType, status, session, fetchRequests])
+
   const handleApprove = async (requestId: string) => {
     try {
       const response = await fetch(`/api/messaging/request/${requestId}`, {
@@ -85,11 +104,17 @@ export default function MessagingPage() {
         body: JSON.stringify({ status: 'approved' }),
       })
 
+      const data = await response.json()
       if (response.ok) {
-        fetchRequests()
+        // Refresh requests after approval
+        await fetchRequests()
+      } else {
+        console.error('Failed to approve request:', data.error)
+        alert(data.error || 'Unable to approve request. Please try again or refresh the page.')
       }
     } catch (error) {
       console.error('Error approving request:', error)
+      alert('An error occurred while approving the request. Please check your connection and try again.')
     }
   }
 
@@ -103,11 +128,17 @@ export default function MessagingPage() {
         body: JSON.stringify({ status: 'rejected' }),
       })
 
+      const data = await response.json()
       if (response.ok) {
-        fetchRequests()
+        // Refresh requests after rejection
+        await fetchRequests()
+      } else {
+        console.error('Failed to reject request:', data.error)
+        alert(data.error || 'Unable to reject request. Please try again or refresh the page.')
       }
     } catch (error) {
       console.error('Error rejecting request:', error)
+      alert('An error occurred while rejecting the request. Please check your connection and try again.')
     }
   }
 
@@ -122,8 +153,10 @@ export default function MessagingPage() {
     )
   }
 
+  // Filter requests based on type and status
   const pendingRequests = requests.filter(r => r.status === 'pending')
   const approvedRequests = requests.filter(r => r.status === 'approved')
+  const rejectedRequests = requests.filter(r => r.status === 'rejected')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
@@ -171,71 +204,88 @@ export default function MessagingPage() {
             </button>
           </div>
 
-          {requestType === 'received' && pendingRequests.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('messaging.pendingRequests')}</h2>
-              <div className="space-y-4">
-                {pendingRequests.map((request) => (
-                  <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {request.sender?.profile?.firstName} {request.sender?.profile?.lastName}
-                          </h3>
-                          {request.sender?.profile && (
-                            request.sender.profile.idVerified ? (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
-                                ✓ {t('profile.verifiedId')}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
-                                {t('profile.notVerified')}
-                              </span>
-                            )
-                          )}
+          {/* Pending Requests Section - Only show for received requests */}
+          {requestType === 'received' && (
+            <>
+              {pendingRequests.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">
+                    {t('messaging.pendingRequests')} ({pendingRequests.length})
+                  </h2>
+                  <div className="space-y-4">
+                    {pendingRequests.map((request) => (
+                      <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <h3 className="text-lg font-semibold text-gray-900">
+                                {request.sender?.profile?.firstName} {request.sender?.profile?.lastName}
+                              </h3>
+                              {request.sender?.profile && (
+                                request.sender.profile.idVerified ? (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-[11px] font-semibold border border-green-200">
+                                    ✓ {t('profile.verifiedId')}
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-200">
+                                    {t('profile.notVerified')}
+                                  </span>
+                                )
+                              )}
+                            </div>
+                            {request.message && (
+                              <p className="text-base text-gray-600 mt-2 mb-2">{request.message}</p>
+                            )}
+                            <p className="text-sm text-gray-500">
+                              {new Date(request.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Link
+                              href={`/messaging/request/${request.id}`}
+                              className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
+                            >
+                              {t('messaging.viewDetails')}
+                            </Link>
+                            <button
+                              onClick={() => handleApprove(request.id)}
+                              className="px-5 py-3 min-h-[44px] bg-green-600 text-white rounded-xl hover:bg-green-700 text-base font-semibold ios-press shadow-md"
+                            >
+                              {t('messaging.approve')}
+                            </button>
+                            <button
+                              onClick={() => handleReject(request.id)}
+                              className="px-5 py-3 min-h-[44px] bg-red-600 text-white rounded-xl hover:bg-red-700 text-base font-semibold ios-press shadow-md"
+                            >
+                              {t('messaging.reject')}
+                            </button>
+                          </div>
                         </div>
-                        {request.message && (
-                          <p className="text-base text-gray-600 mt-2 mb-2">{request.message}</p>
-                        )}
-                        <p className="text-sm text-gray-500">
-                          {new Date(request.createdAt).toLocaleDateString()}
-                        </p>
                       </div>
-                      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                        <Link
-                          href={`/messaging/request/${request.id}`}
-                          className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
-                        >
-                          {t('messaging.viewDetails')}
-                        </Link>
-                        <button
-                          onClick={() => handleApprove(request.id)}
-                          className="px-5 py-3 min-h-[44px] bg-green-600 text-white rounded-xl hover:bg-green-700 text-base font-semibold ios-press shadow-md"
-                        >
-                          {t('messaging.approve')}
-                        </button>
-                        <button
-                          onClick={() => handleReject(request.id)}
-                          className="px-5 py-3 min-h-[44px] bg-red-600 text-white rounded-xl hover:bg-red-700 text-base font-semibold ios-press shadow-md"
-                        >
-                          {t('messaging.reject')}
-                        </button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              )}
+              {pendingRequests.length === 0 && approvedRequests.length === 0 && rejectedRequests.length === 0 && (
+                <div className="mb-8">
+                  <EmptyMessages />
+                </div>
+              )}
+            </>
           )}
 
           <div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">
-              {requestType === 'received' ? t('messaging.approvedRequests') : t('messaging.sentRequests')}
+              {requestType === 'received' ? t('messaging.approvedRequests') : t('messaging.sentRequests')} 
+              {approvedRequests.length > 0 && ` (${approvedRequests.length})`}
             </h2>
-            {approvedRequests.length === 0 ? (
+            {approvedRequests.length === 0 && requestType === 'sent' && (
               <EmptyMessages />
-            ) : (
+            )}
+            {approvedRequests.length === 0 && requestType === 'received' && pendingRequests.length === 0 && (
+              <EmptyMessages />
+            )}
+            {approvedRequests.length > 0 && (
               <div className="space-y-4">
                 {approvedRequests.map((request) => {
                   const otherUser = requestType === 'received' ? request.sender : request.receiver
@@ -269,6 +319,7 @@ export default function MessagingPage() {
                           </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                          {/* Step 1: Complete Compatibility Questionnaire (after accepting request) */}
                           {request.connectionStatus === 'accepted' && (
                             <Link
                               href={`/messaging/compatibility/${request.id}`}
@@ -277,6 +328,26 @@ export default function MessagingPage() {
                               {t('messaging.completeCompatibility')}
                             </Link>
                           )}
+                          
+                          {/* Step 2: After compatibility questionnaire or when connected, show option to send custom questions OR start messaging */}
+                          {(request.connectionStatus === 'questionnaire_completed' || request.connectionStatus === 'connected') && (
+                            <>
+                              <Link
+                                href={`/messaging/questionnaire/${request.id}`}
+                                className="px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
+                              >
+                                {t('messaging.sendCustomQuestions')}
+                              </Link>
+                              <Link
+                                href={`/messaging/${otherUser?.id}`}
+                                className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
+                              >
+                                {t('messaging.sendMessage')}
+                              </Link>
+                            </>
+                          )}
+                          
+                          {/* Step 3: Answer custom questions if someone sent them */}
                           {request.connectionStatus === 'questionnaire_sent' && (
                             <Link
                               href={`/messaging/questionnaire/${request.id}`}
@@ -285,7 +356,9 @@ export default function MessagingPage() {
                               {t('messaging.answerCustomQuestions')}
                             </Link>
                           )}
-                          {request.connectionStatus === 'questionnaire_completed' && (
+                          
+                          {/* Step 4: View custom questions and message after both answered */}
+                          {request.connectionStatus === 'connected' && (
                             <>
                               <Link
                                 href={`/messaging/questionnaire/${request.id}`}
@@ -301,7 +374,9 @@ export default function MessagingPage() {
                               </Link>
                             </>
                           )}
-                          {canMessage && request.connectionStatus !== 'questionnaire_completed' && (
+                          
+                          {/* Fallback: Allow messaging if status allows it */}
+                          {canMessage && !['accepted', 'questionnaire_completed', 'questionnaire_sent', 'connected'].includes(request.connectionStatus) && (
                             <Link
                               href={`/messaging/${otherUser?.id}`}
                               className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"

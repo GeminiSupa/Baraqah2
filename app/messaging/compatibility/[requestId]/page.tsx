@@ -347,10 +347,28 @@ export default function CompatibilityQuestionnairePage() {
             )}
 
             {success && bothCompleted && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
-                <p className="font-semibold mb-2">✅ Questionnaire Completed!</p>
-                <p className="text-sm mb-4">Both of you have completed the compatibility questionnaire. You can now message each other or send custom questions.</p>
-                <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <div className="bg-green-50 border-2 border-green-300 text-green-800 px-6 py-5 rounded-xl mb-6 shadow-md">
+                <div className="flex items-start gap-3 mb-3">
+                  <span className="text-3xl">✅</span>
+                  <div>
+                    <p className="font-bold text-lg mb-1">Compatibility Questionnaire Completed!</p>
+                    <p className="text-sm text-green-700">Both of you have completed the initial compatibility questionnaire.</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg p-4 mb-4 border border-green-200">
+                  <p className="text-sm font-semibold text-gray-900 mb-2">What&apos;s Next?</p>
+                  <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                    <li>Send custom questions to get to know each other better (optional)</li>
+                    <li>Start messaging directly to begin your conversation</li>
+                  </ul>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => router.push(`/messaging/questionnaire/${requestId}`)}
+                    className="px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 font-semibold ios-press shadow-md flex-1 sm:flex-none"
+                  >
+                    📝 Send Custom Questions
+                  </button>
                   <button
                     onClick={() => {
                       const otherUserId = request?.sender?.id === session?.user?.id 
@@ -360,15 +378,9 @@ export default function CompatibilityQuestionnairePage() {
                         router.push(`/messaging/${otherUserId}`)
                       }
                     }}
-                    className="px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-semibold"
+                    className="px-6 py-3 bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark font-semibold ios-press shadow-md flex-1 sm:flex-none"
                   >
-                    Start Messaging
-                  </button>
-                  <button
-                    onClick={() => router.push(`/messaging/questionnaire/${requestId}`)}
-                    className="px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 font-semibold"
-                  >
-                    Send Custom Questions
+                    💬 Start Messaging
                   </button>
                 </div>
               </div>

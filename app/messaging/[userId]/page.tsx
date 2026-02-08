@@ -106,11 +106,13 @@ export default function ConversationPage() {
           alert('Some personal information was removed from your message for security reasons.')
         }
       } else {
-        alert(data.error || 'Failed to send message')
+        const errorMsg = data.error || 'Failed to send message. Please check your connection and try again.'
+        alert(errorMsg)
         setNewMessage(messageContent)
       }
     } catch (error) {
-      alert('An error occurred. Please try again.')
+      console.error('Error sending message:', error)
+      alert('Unable to send message. Please check your internet connection and try again.')
       setNewMessage(messageContent)
     } finally {
       setSending(false)

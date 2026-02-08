@@ -51,7 +51,8 @@ export async function GET(
     }
 
     // Check if connection is accepted or questionnaire flow has started
-    const allowedStatuses = ['accepted', 'questionnaire_sent', 'questionnaire_completed']
+    // Allow 'connected' status as users can send custom questions even after skipping compatibility questionnaire
+    const allowedStatuses = ['accepted', 'questionnaire_sent', 'questionnaire_completed', 'connected']
     if (!allowedStatuses.includes(messageRequest.connection_status)) {
       return NextResponse.json(
         { error: 'Request must be accepted first' },
@@ -141,7 +142,8 @@ export async function POST(
     }
 
     // Check if connection is accepted or questionnaire flow has started
-    const allowedStatuses = ['accepted', 'questionnaire_sent', 'questionnaire_completed']
+    // Allow 'connected' status as users can send custom questions even after skipping compatibility questionnaire
+    const allowedStatuses = ['accepted', 'questionnaire_sent', 'questionnaire_completed', 'connected']
     if (!allowedStatuses.includes(messageRequest.connection_status)) {
       return NextResponse.json(
         { error: 'Request must be accepted first' },
@@ -325,14 +327,19 @@ export async function PATCH(
       .select('status')
       .eq('request_id', requestId)
 
-    const allAnswered = allQuestionnaires?.every((q: any) => q.status === 'answered')
+    const allAnswered = allQuestionnaires && allQuestionnaires.length >= 2 && allQuestionnaires.every((q: any) => q.status === 'answered')
 
     if (allAnswered) {
-      // Update connection status
-      await supabaseAdmin
+      // Update connection status to questionnaire_completed (both custom questionnaires answered)
+      // Note: This is different from the compatibility questionnaire completion
+      const { error: updateError } = await supabaseAdmin
         .from('message_requests')
         .update({ connection_status: 'questionnaire_completed' })
         .eq('id', requestId)
+      
+      if (updateError) {
+        console.error('Error updating connection status:', updateError)
+      }
     }
 
     return NextResponse.json(

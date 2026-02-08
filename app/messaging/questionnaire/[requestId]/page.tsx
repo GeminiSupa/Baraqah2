@@ -61,46 +61,74 @@ export default function QuestionnairePage() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch request info
-      const requestResponse = await fetch(`/api/messaging/requests?type=received`)
-      const requestData = await requestResponse.json()
-      const foundRequest = requestData.requests?.find((r: MessageRequest) => r.id === requestId)
+      setLoading(true)
+      setError('')
+      
+      // Fetch request info - try both received and sent
+      let foundRequest: MessageRequest | null = null
+      
+      try {
+        const requestResponse = await fetch(`/api/messaging/requests?type=received`)
+        if (requestResponse.ok) {
+          const requestData = await requestResponse.json()
+          foundRequest = requestData.requests?.find((r: MessageRequest) => r.id === requestId) || null
+        }
+      } catch (e) {
+        console.error('Error fetching received requests:', e)
+      }
       
       if (!foundRequest) {
-        // Try sent requests
-        const sentResponse = await fetch(`/api/messaging/requests?type=sent`)
-        const sentData = await sentResponse.json()
-        const foundSent = sentData.requests?.find((r: MessageRequest) => r.id === requestId)
-        if (foundSent) {
-          setRequest(foundSent)
+        try {
+          const sentResponse = await fetch(`/api/messaging/requests?type=sent`)
+          if (sentResponse.ok) {
+            const sentData = await sentResponse.json()
+            foundRequest = sentData.requests?.find((r: MessageRequest) => r.id === requestId) || null
+          }
+        } catch (e) {
+          console.error('Error fetching sent requests:', e)
         }
-      } else {
+      }
+      
+      if (foundRequest) {
         setRequest(foundRequest)
+      } else {
+        setError('Request not found. Please check the URL and try again.')
+        setLoading(false)
+        return
       }
 
       // Fetch questionnaires
-      const response = await fetch(`/api/questionnaire/${requestId}`)
-      const data = await response.json()
+      try {
+        const response = await fetch(`/api/questionnaire/${requestId}`)
+        const data = await response.json()
 
-      if (response.ok) {
-        setQuestionnaires(data.questionnaires || [])
-        
-        // If there's a questionnaire to answer, initialize answers
-        const toAnswer = data.questionnaires?.find((q: Questionnaire) => 
-          q.receiverId === session?.user?.id && q.status === 'pending'
-        )
-        if (toAnswer) {
-          setAnswers(new Array(toAnswer.questions.length).fill(''))
+        if (response.ok) {
+          setQuestionnaires(data.questionnaires || [])
+          
+          // If there's a questionnaire to answer, initialize answers
+          const toAnswer = data.questionnaires?.find((q: Questionnaire) => 
+            q.receiverId === session?.user?.id && q.status === 'pending'
+          )
+          if (toAnswer && toAnswer.questions && Array.isArray(toAnswer.questions)) {
+            // Initialize answers array with empty strings, or use existing answers if any
+            const initialAnswers = toAnswer.questions.map((q: Question) => q.answer || '')
+            setAnswers(initialAnswers)
+          } else {
+            setAnswers([])
+          }
+        } else {
+          // If error, show it but don't block the page if it's just a status issue
+          if (data.error && !data.error.includes('must be accepted') && !data.error.includes('Request must be accepted')) {
+            setError(data.error)
+          }
         }
-      } else {
-        // If error, show it but don't block the page
-        if (data.error && !data.error.includes('must be accepted')) {
-          setError(data.error)
-        }
+      } catch (e) {
+        console.error('Error fetching questionnaires:', e)
+        // Don't set error here as questionnaires might not exist yet
       }
     } catch (error) {
       console.error('Error fetching data:', error)
-      setError('Failed to load data')
+      setError('Failed to load data. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -157,12 +185,15 @@ export default function QuestionnairePage() {
       if (response.ok) {
         setShowCreateForm(false)
         setNewQuestions([''])
-        fetchData()
+        setError('')
+        // Refresh data to show the new questionnaire
+        await fetchData()
       } else {
-        setError(data.error || 'Failed to send questions')
+        setError(data.error || 'Failed to send questions. Please try again.')
       }
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      console.error('Error submitting questions:', error)
+      setError('An error occurred while sending questions. Please try again.')
     } finally {
       setProcessing(false)
     }
@@ -207,20 +238,31 @@ export default function QuestionnairePage() {
       const data = await response.json()
 
       if (response.ok) {
-        fetchData()
+        setError('')
+        // Clear answers and refresh data
+        setAnswers([])
+        await fetchData()
       } else {
-        setError(data.error || 'Failed to submit answers')
+        setError(data.error || 'Failed to submit answers. Please try again.')
       }
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      console.error('Error submitting answers:', error)
+      setError('An error occurred while submitting answers. Please try again.')
     } finally {
       setProcessing(false)
     }
   }
 
   const handleMarkViewed = async () => {
-    // This will be handled when connecting
-    router.push(`/messaging/connect/${requestId}`)
+    // Navigate to messaging directly
+    const otherUserId = request?.sender?.id === session?.user?.id 
+      ? request?.receiver?.id 
+      : request?.sender?.id
+    if (otherUserId) {
+      router.push(`/messaging/${otherUserId}`)
+    } else {
+      router.push('/messaging')
+    }
   }
 
   if (status === 'loading' || loading) {
@@ -315,16 +357,22 @@ export default function QuestionnairePage() {
             </div>
           </div>
 
-          {/* Create Questions Form */}
-          {!myQuestionnaire && request.connectionStatus === 'accepted' && (
+          {/* Create Questions Form - Allow after accepted, after compatibility questionnaire completed, or when connected */}
+          {!myQuestionnaire && (request.connectionStatus === 'accepted' || request.connectionStatus === 'questionnaire_completed' || request.connectionStatus === 'connected') && (
             <div className="mb-8">
               {!showCreateForm ? (
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className="px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-                >
-                  Send Custom Questions to {otherUserName}
-                </button>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Send Custom Questions</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Create personalized questions to get to know {otherUserName} better. You can ask up to 10 questions.
+                  </p>
+                  <button
+                    onClick={() => setShowCreateForm(true)}
+                    className="px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 font-semibold ios-press shadow-md"
+                  >
+                    Create & Send Custom Questions
+                  </button>
+                </div>
               ) : (
                 <div className="border rounded-lg p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -477,10 +525,10 @@ export default function QuestionnairePage() {
                       </p>
                       <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Link
-                          href={`/messaging/connect/${requestId}`}
+                          href={`/messaging/${otherUser?.id}`}
                           className="inline-block px-8 py-4 bg-iosBlue text-white rounded-ios-lg hover:bg-iosBlue-dark text-ios-title3 font-semibold ios-press shadow-ios-lg text-center"
                         >
-                          Connect & Start Messaging
+                          Start Messaging
                         </Link>
                         <button
                           onClick={() => setShowRejectModal(true)}
@@ -489,9 +537,6 @@ export default function QuestionnairePage() {
                           Reject Connection
                         </button>
                       </div>
-                      <p className="text-ios-footnote text-iosGray-1 mt-2 text-center">
-                        Or <Link href={`/messaging/${otherUser?.id}`} className="text-iosBlue underline">start messaging directly</Link>
-                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -556,10 +601,14 @@ export default function QuestionnairePage() {
             </div>
           )}
 
-          {request.connectionStatus === 'accepted' && !myQuestionnaire && !theirQuestionnaire && (
+          {(request.connectionStatus === 'accepted' || request.connectionStatus === 'questionnaire_completed' || request.connectionStatus === 'connected') && !myQuestionnaire && !theirQuestionnaire && !showCreateForm && (
             <div className="text-center py-8 bg-blue-50 rounded-ios-lg p-6">
               <p className="text-ios-body text-gray-700">
-                You can now send custom questions to {otherUserName} to get to know them better.
+                {request.connectionStatus === 'questionnaire_completed' 
+                  ? `Great! You've both completed the compatibility questionnaire. You can now send custom questions to ${otherUserName} to get to know them even better, or start messaging directly.`
+                  : request.connectionStatus === 'connected'
+                  ? `You're already connected! You can send custom questions to ${otherUserName} to get to know them better, or continue messaging.`
+                  : `You can now send custom questions to ${otherUserName} to get to know them better.`}
               </p>
             </div>
           )}
