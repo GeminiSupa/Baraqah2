@@ -10,9 +10,11 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
-import { OptimizedImage } from '@/components/OptimizedImage'
 import { EmptyProfiles } from '@/components/ui/EmptyState'
 import { useTranslation } from '@/components/LanguageProvider'
+import { PageLayout } from '@/components/layout/PageLayout'
+import { useToast } from '@/components/ui/Toast'
+import { ProfileCard, ProfileCardSkeleton } from '@/components/profile/ProfileCard'
 
 interface Profile {
   id: string
@@ -34,6 +36,7 @@ export default function BrowsePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -51,6 +54,8 @@ export default function BrowsePage() {
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null)
   const [requestMessage, setRequestMessage] = useState('')
   const [showRequestModal, setShowRequestModal] = useState(false)
+  const [sendingRequest, setSendingRequest] = useState(false)
+  const [favoritingUserId, setFavoritingUserId] = useState<string | null>(null)
 
   const fetchProfiles = useCallback(async () => {
     setLoading(true)
@@ -114,6 +119,7 @@ export default function BrowsePage() {
   const handleSendRequest = async () => {
     if (!selectedProfile) return
 
+    setSendingRequest(true)
     try {
       const response = await fetch('/api/messaging/request', {
         method: 'POST',
@@ -131,16 +137,27 @@ export default function BrowsePage() {
       if (response.ok) {
         setShowRequestModal(false)
         setRequestMessage('')
-        alert(t('messaging.requestSent'))
+        toast({ variant: 'success', title: t('messaging.requestSent') })
       } else {
-        alert(data.error || 'Failed to send request')
+        toast({
+          variant: 'error',
+          title: t('common.error'),
+          description: data.error || t('messaging.failedToSendRequest'),
+        })
       }
     } catch (error) {
-      alert('An error occurred. Please try again.')
+      toast({
+        variant: 'error',
+        title: t('common.error'),
+        description: t('auth.errorOccurred'),
+      })
+    } finally {
+      setSendingRequest(false)
     }
   }
 
   const handleFavorite = async (userId: string) => {
+    setFavoritingUserId(userId)
     try {
       const response = await fetch('/api/favorites', {
         method: 'POST',
@@ -151,10 +168,24 @@ export default function BrowsePage() {
       })
 
       if (response.ok) {
-        alert('Added to favorites!')
+        toast({ variant: 'success', title: t('favorites.addedToFavorites') })
+      } else {
+        const data = await response.json().catch(() => ({}))
+        toast({
+          variant: 'error',
+          title: t('common.error'),
+          description: data.error || t('favorites.failedToAdd'),
+        })
       }
     } catch (error) {
       console.error('Error adding favorite:', error)
+      toast({
+        variant: 'error',
+        title: t('common.error'),
+        description: t('favorites.failedToAdd'),
+      })
+    } finally {
+      setFavoritingUserId(null)
     }
   }
 
@@ -173,7 +204,7 @@ export default function BrowsePage() {
     setCurrentIndex((prev) => (prev - 1 + profiles.length) % profiles.length)
   }
 
-  if (status === 'loading' || loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-iosBg-secondary flex items-center justify-center safe-top safe-bottom">
         <div className="text-center">
@@ -185,13 +216,14 @@ export default function BrowsePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
+    <PageLayout>
       <AnimatedBackground intensity="subtle" />
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="relative z-10">
         {/* Mobile Back Button */}
         <button
           onClick={() => router.back()}
           className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+          aria-label={t('common.back')}
         >
           <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -209,6 +241,7 @@ export default function BrowsePage() {
             variant="secondary"
             onClick={() => setShowFilters(!showFilters)}
             className="w-full sm:w-auto px-6 py-2.5 font-semibold"
+            aria-expanded={showFilters}
           >
             {showFilters ? t('browse.hideFilters') : t('browse.showFilters')}
           </Button>
@@ -309,161 +342,24 @@ export default function BrowsePage() {
 
         {/* Elegant Profile Card - Redesigned */}
         <div className="flex flex-col items-center justify-center mt-8 md:mt-12">
-          {profiles.length > 0 ? (
-            (() => {
-              const profile = profiles[currentIndex]
-              const primaryPhoto = profile.photos.find(p => p.isPrimary) || profile.photos[0]
-              return (
-                <div className="w-full max-w-lg mx-auto">
-                  {/* Profile Counter - Elegant Top Badge */}
-                  <div className="flex justify-center mb-4">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-gray-100">
-                      <span className="text-xs font-medium text-gray-600">
-                        {t('browse.profile')} {currentIndex + 1} {t('browse.of')} {profiles.length}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Main Card - Soft, Elegant Design */}
-                  <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100/50">
-                    {/* Photo Section - Better Proportions */}
-                    {primaryPhoto && (
-                      <div className="relative w-full aspect-[4/5] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-                        <OptimizedImage
-                          src={primaryPhoto.url}
-                          alt={`${profile.firstName} ${profile.lastName}`}
-                          fill
-                          className="object-cover"
-                        />
-                        {/* Gradient Overlay for Better Text Readability */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-                      </div>
-                    )}
-
-                    {/* Content Section - Better Spacing & Typography */}
-                    <div className="px-6 py-6 space-y-4">
-                      {/* Name & Basic Info - Better Hierarchy */}
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
-                            {profile.firstName} {profile.lastName}
-                          </h3>
-                          {profile.idVerified ? (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold border border-green-200">
-                              <span className="mr-1">✓</span> {t('profile.verifiedId')}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-50 text-gray-600 text-xs font-medium border border-gray-200">
-                              {t('profile.notVerified')}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-500 font-medium">
-                          {profile.age} {t('common.years')} {t('common.old')} • {profile.gender === 'male' ? t('profile.male') : t('profile.female')}
-                          {profile.city && ` • ${profile.city}`}
-                        </p>
-                      </div>
-
-                      {/* Bio - Better Readability */}
-                      {profile.bio && (
-                        <p className="text-base text-gray-700 leading-relaxed line-clamp-3">
-                          {profile.bio}
-                        </p>
-                      )}
-
-                      {/* Tags - More Elegant Design */}
-                      {(profile.profession || profile.education) && (
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {profile.profession && (
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium border border-blue-100">
-                              💼 {profile.profession}
-                            </span>
-                          )}
-                          {profile.education && (
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-sm font-medium border border-purple-100">
-                              🎓 {profile.education}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Action Buttons - Proportional to Card Width */}
-                      <div className="pt-4 space-y-3">
-                        {/* Primary Actions - Centered & Balanced */}
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <button
-                            type="button"
-                            onClick={handlePrevProfile}
-                            className="h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 rounded-full border-2 border-gray-200 flex items-center justify-center bg-white hover:bg-gray-50 ios-press text-gray-600 transition-all shadow-sm"
-                            aria-label="Previous profile"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                          </button>
-
-                          <Button
-                            variant="secondary"
-                            size="md"
-                            onClick={handleNextProfile}
-                            className="flex-1 bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 font-semibold"
-                          >
-                            {t('browse.skip')}
-                          </Button>
-                          
-                          <Button
-                            variant="primary"
-                            size="md"
-                            onClick={() => {
-                              setSelectedProfile(profile)
-                              setShowRequestModal(true)
-                            }}
-                            className="flex-1 font-semibold shadow-md min-h-[44px] text-xs sm:text-sm md:text-base px-2 sm:px-3 md:px-4"
-                          >
-                            <span className="hidden sm:inline">{t('browse.likeAndRequest')}</span>
-                            <span className="sm:hidden">{t('browse.connect')}</span>
-                          </Button>
-
-                          <button
-                            type="button"
-                            onClick={handleNextProfile}
-                            className="h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 rounded-full border-2 border-gray-200 flex items-center justify-center bg-white hover:bg-gray-50 ios-press text-gray-600 transition-all shadow-sm"
-                            aria-label="Next profile"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </button>
-                        </div>
-
-                        {/* Secondary Actions - Better Alignment */}
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                          <Link 
-                            href={`/profile/view/${profile.userId}`} 
-                            className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                          >
-                            {t('browse.viewFullProfile')}
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => handleFavorite(profile.userId)}
-                            className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-red-500 transition-colors"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                            {t('browse.addToFavorites')}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })()
-          ) : (
-            !loading && <EmptyProfiles />
+          {loading && <ProfileCardSkeleton />}
+          {!loading && profiles.length > 0 && (
+            <ProfileCard
+              profile={profiles[currentIndex]}
+              index={currentIndex}
+              total={profiles.length}
+              onPrev={handlePrevProfile}
+              onNext={handleNextProfile}
+              onConnect={() => {
+                const profile = profiles[currentIndex]
+                setSelectedProfile(profile)
+                setShowRequestModal(true)
+              }}
+              onFavorite={() => handleFavorite(profiles[currentIndex].userId)}
+              favoriting={favoritingUserId === profiles[currentIndex].userId}
+            />
           )}
+          {!loading && profiles.length === 0 && <EmptyProfiles />}
         </div>
       </div>
 
@@ -484,9 +380,10 @@ export default function BrowsePage() {
             placeholder={t('messaging.requestMessage')}
             rows={4}
             className="w-full px-4 py-3 rounded-ios border border-iosGray-4 focus:outline-none focus:ring-2 focus:ring-iosBlue focus:border-iosBlue text-gray-900 bg-white"
+            aria-label={t('messaging.requestMessage')}
           />
           <div className="flex space-x-4">
-            <Button variant="primary" fullWidth onClick={handleSendRequest}>
+            <Button variant="primary" fullWidth onClick={handleSendRequest} loading={sendingRequest}>
               {t('messaging.sendRequest')}
             </Button>
             <Button
@@ -499,6 +396,6 @@ export default function BrowsePage() {
           </div>
         </div>
       </Modal>
-    </div>
+    </PageLayout>
   )
 }

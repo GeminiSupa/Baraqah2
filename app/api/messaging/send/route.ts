@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
 import { filterPersonalInfo } from '@/lib/message-filter'
+import { createNotification, getUserDisplayName } from '@/lib/notifications'
 import { z } from 'zod'
 
 const messageSchema = z.object({
@@ -73,6 +74,23 @@ export async function POST(req: NextRequest) {
         { error: 'Failed to send message' },
         { status: 500 }
       )
+    }
+
+    // Notify receiver
+    try {
+      const senderName = await getUserDisplayName(session.user.id)
+      await createNotification({
+        userId: receiverId,
+        type: 'message',
+        title: `New message from ${senderName}`,
+        message:
+          filtered.substring(0, 120) + (filtered.length > 120 ? '…' : ''),
+        link: `/messaging/${session.user.id}`,
+        metadata: { messageId: createdMessage.id, senderId: session.user.id },
+        dedupeKey: `message:${createdMessage.id}`,
+      })
+    } catch (e) {
+      console.error('Failed to create message notification:', e)
     }
 
     return NextResponse.json(

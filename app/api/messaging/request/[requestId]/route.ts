@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
+import { createNotification, getUserDisplayName } from '@/lib/notifications'
 
 export async function PATCH(
   req: NextRequest,
@@ -111,6 +112,36 @@ export async function PATCH(
         { error: 'Failed to update request' },
         { status: 500 }
       )
+    }
+
+    // Notify sender when receiver approves/rejects
+    if (status === 'approved' || status === 'rejected') {
+      try {
+        const receiverName = await getUserDisplayName(session.user.id)
+        if (status === 'approved') {
+          await createNotification({
+            userId: messageRequest.sender_id,
+            type: 'request_approved',
+            title: `${receiverName} approved your request`,
+            message: 'Complete the compatibility questionnaire to start messaging.',
+            link: `/messaging/compatibility/${requestId}`,
+            metadata: { requestId },
+            dedupeKey: `request_approved:${requestId}`,
+          })
+        } else {
+          await createNotification({
+            userId: messageRequest.sender_id,
+            type: 'request_rejected',
+            title: `${receiverName} declined your request`,
+            message: rejectionReason || 'Your connection request was declined.',
+            link: `/messaging`,
+            metadata: { requestId },
+            dedupeKey: `request_rejected:${requestId}`,
+          })
+        }
+      } catch (e) {
+        console.error('Failed to create approval/rejection notification:', e)
+      }
     }
 
     return NextResponse.json(

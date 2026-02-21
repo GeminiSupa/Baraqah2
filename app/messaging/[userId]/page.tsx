@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { EmojiPicker } from '@/components/EmojiPicker'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { useTranslation } from '@/components/LanguageProvider'
+import { useToast } from '@/components/ui/Toast'
 
 interface Message {
   id: string
@@ -28,6 +29,7 @@ export default function ConversationPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useTranslation()
+  const { toast } = useToast()
   const params = useParams()
   const userId = params.userId as string
   const [messages, setMessages] = useState<Message[]>([])
@@ -103,16 +105,28 @@ export default function ConversationPage() {
       if (response.ok) {
         fetchMessages()
         if (data.blockedContent) {
-          alert('Some personal information was removed from your message for security reasons.')
+          toast({
+            variant: 'info',
+            title: t('messaging.messageFilteredTitle'),
+            description: t('messaging.messageFilteredDescription'),
+          })
         }
       } else {
         const errorMsg = data.error || 'Failed to send message. Please check your connection and try again.'
-        alert(errorMsg)
+        toast({
+          variant: 'error',
+          title: t('common.error'),
+          description: errorMsg,
+        })
         setNewMessage(messageContent)
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      alert('Unable to send message. Please check your internet connection and try again.')
+      toast({
+        variant: 'error',
+        title: t('common.error'),
+        description: t('messaging.unableToSend'),
+      })
       setNewMessage(messageContent)
     } finally {
       setSending(false)
@@ -256,7 +270,7 @@ export default function ConversationPage() {
               placeholder={t('messaging.typeMessage')}
               className="flex-1 bg-transparent border-0 outline-none text-sm sm:text-base text-gray-900 placeholder-gray-400"
               disabled={sending}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
                   if (newMessage.trim()) {

@@ -4,19 +4,23 @@ import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/components/LanguageProvider'
+import { cn } from '@/lib/utils'
 
 interface Notification {
   id: string
-  type: 'message' | 'request' | 'questionnaire'
+  type: string
   title: string
   message: string
   link: string
   createdAt: string
+  isRead?: boolean
 }
 
 export function NotificationBell() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -66,9 +70,22 @@ export function NotificationBell() {
     }
   }
 
-  const handleNotificationClick = (link: string) => {
+  const handleNotificationClick = async (notification: Notification) => {
     setIsOpen(false)
-    router.push(link)
+    if (notification.link) {
+      if (!notification.isRead) {
+        try {
+          await fetch(`/api/notifications/${notification.id}/read`, { method: 'PATCH' })
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
+          )
+          setUnreadCount((prev) => Math.max(0, prev - 1))
+        } catch {
+          // Non-blocking
+        }
+      }
+      router.push(notification.link)
+    }
   }
 
   const formatTime = (dateString: string) => {
@@ -76,10 +93,10 @@ export function NotificationBell() {
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-    if (diffInSeconds < 60) return 'Just now'
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`
+    if (diffInSeconds < 60) return t('notifications.justNow')
+    if (diffInSeconds < 3600) return t('notifications.minutesAgo', { count: Math.floor(diffInSeconds / 60) })
+    if (diffInSeconds < 86400) return t('notifications.hoursAgo', { count: Math.floor(diffInSeconds / 3600) })
+    if (diffInSeconds < 604800) return t('notifications.daysAgo', { count: Math.floor(diffInSeconds / 86400) })
     return date.toLocaleDateString()
   }
 
@@ -88,8 +105,11 @@ export function NotificationBell() {
       case 'message':
         return '💬'
       case 'request':
+      case 'request_approved':
+      case 'request_rejected':
         return '👤'
       case 'questionnaire':
+      case 'questionnaire_answered':
         return '📝'
       default:
         return '🔔'
@@ -105,7 +125,7 @@ export function NotificationBell() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 ios-press rounded-ios text-iosGray-1 hover:text-gray-900 transition-colors touch-target"
-        aria-label="Notifications"
+        aria-label={t('notifications.notifications')}
       >
         <svg
           className="w-6 h-6"
@@ -121,7 +141,7 @@ export function NotificationBell() {
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 block h-5 w-5 rounded-full bg-iosRed text-white text-xs font-semibold flex items-center justify-center transform translate-x-1 -translate-y-1">
+          <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-iosRed text-white text-xs font-semibold flex items-center justify-center transform translate-x-1 -translate-y-1">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -139,17 +159,34 @@ export function NotificationBell() {
           <div className="fixed md:absolute right-0 top-0 md:top-auto md:mt-2 w-full md:w-80 lg:w-96 h-screen md:h-auto md:max-h-[calc(100vh-8rem)] bg-white rounded-none md:rounded-ios-lg shadow-ios-lg border-0 md:border border-iosGray-4 z-50 overflow-hidden flex flex-col safe-top safe-bottom">
             {/* Header with Close Button */}
             <div className="p-4 border-b border-iosGray-4 flex items-center justify-between flex-shrink-0">
-              <h3 className="text-lg md:text-ios-title3 font-semibold text-gray-900">Notifications</h3>
+              <h3 className="text-lg md:text-ios-title3 font-semibold text-gray-900">{t('notifications.notifications')}</h3>
               <div className="flex items-center gap-3">
                 {unreadCount > 0 && (
                   <span className="text-xs md:text-ios-footnote text-iosGray-1">
-                    {unreadCount} new
+                    {unreadCount} {t('notifications.new')}
                   </span>
+                )}
+                {notifications.length > 0 && unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await fetch('/api/notifications/read-all', { method: 'PATCH' })
+                        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+                        setUnreadCount(0)
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    className="hidden md:inline text-xs md:text-ios-footnote text-iosBlue hover:text-iosBlue-dark font-medium"
+                  >
+                    {t('notifications.markAllRead')}
+                  </button>
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
                   className="md:hidden p-2 -mr-2 ios-press rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                  aria-label="Close notifications"
+                  aria-label={t('common.close')}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -166,15 +203,18 @@ export function NotificationBell() {
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <p className="text-sm md:text-ios-body text-iosGray-1">No notifications</p>
+                  <p className="text-sm md:text-ios-body text-iosGray-1">{t('notifications.noNotifications')}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-iosGray-4">
                   {notifications.map((notification) => (
                     <button
                       key={notification.id}
-                      onClick={() => handleNotificationClick(notification.link)}
-                      className="w-full text-left p-4 hover:bg-iosGray-6 active:bg-iosGray-5 transition-colors ios-press min-h-[80px]"
+                      onClick={() => handleNotificationClick(notification)}
+                      className={cn(
+                        'w-full text-left p-4 hover:bg-iosGray-6 active:bg-iosGray-5 transition-colors ios-press min-h-[80px]',
+                        notification.isRead ? 'bg-white' : 'bg-iosBlue/5'
+                      )}
                     >
                       <div className="flex items-start gap-3">
                         <span className="text-xl md:text-2xl flex-shrink-0 mt-0.5">
@@ -191,6 +231,9 @@ export function NotificationBell() {
                             {formatTime(notification.createdAt)}
                           </p>
                         </div>
+                        {!notification.isRead && (
+                          <span className="mt-2 h-2 w-2 rounded-full bg-iosBlue flex-shrink-0" aria-hidden="true" />
+                        )}
                       </div>
                     </button>
                   ))}
@@ -206,7 +249,7 @@ export function NotificationBell() {
                   onClick={() => setIsOpen(false)}
                   className="block text-center text-sm md:text-ios-body text-iosBlue hover:text-iosBlue-dark font-medium py-2"
                 >
-                  View All Messages
+                  {t('notifications.viewAllMessages')}
                 </Link>
               </div>
             )}

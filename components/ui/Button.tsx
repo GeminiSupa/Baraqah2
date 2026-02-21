@@ -20,7 +20,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     children,
     ...props 
   }, ref) => {
-    const baseStyles = 'ios-press touch-target font-semibold rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-iosBlue focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg'
+    const baseStyles = 'ios-press touch-target font-semibold rounded-ios-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-iosBlue focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed shadow-ios hover:shadow-ios-lg'
     
     const variants = {
       primary: 'bg-iosBlue text-white hover:bg-iosBlue-dark focus-visible:ring-iosBlue',

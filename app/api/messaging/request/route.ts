@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
+import { createNotification, getUserDisplayName } from '@/lib/notifications'
 import { z } from 'zod'
 
 const requestSchema = z.object({
@@ -79,6 +80,22 @@ export async function POST(req: NextRequest) {
         { error: 'Failed to send message request' },
         { status: 500 }
       )
+    }
+
+    // Create notification for receiver
+    try {
+      const senderName = await getUserDisplayName(session.user.id)
+      await createNotification({
+        userId: receiverId,
+        type: 'request',
+        title: `New connection request from ${senderName}`,
+        message: message || 'Wants to connect with you',
+        link: `/messaging/request/${messageRequest.id}`,
+        metadata: { requestId: messageRequest.id, senderId: session.user.id },
+        dedupeKey: `request:${messageRequest.id}`,
+      })
+    } catch (e) {
+      console.error('Failed to create request notification:', e)
     }
 
     return NextResponse.json(

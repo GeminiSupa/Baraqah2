@@ -1,15 +1,46 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { useTranslation } from '@/components/LanguageProvider'
+import { useConfirm } from '@/components/ui/Confirm'
+import { useForm, FormProvider } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { createProfileSchema, type ProfileFormValues } from '@/lib/validation/profile'
+import { FormField } from '@/components/Form/FormField'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { AnimatedBackground } from '@/components/AnimatedBackground'
+import { PageLayout } from '@/components/layout/PageLayout'
 
 export default function EditProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useTranslation()
+  const { confirm } = useConfirm()
+  const schema = useMemo(() => createProfileSchema(t), [t])
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      age: 18,
+      gender: 'male',
+      bio: '',
+      education: '',
+      profession: '',
+      location: '',
+      city: '',
+      sectPreference: '',
+      prayerPractice: '',
+      hijabPreference: '',
+      photoPrivacy: 'private',
+      profileVisibility: 'public',
+    },
+    mode: 'onBlur',
+  })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -17,46 +48,25 @@ export default function EditProfilePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [photos, setPhotos] = useState<Array<{ id: string; url: string; isPrimary: boolean }>>([])
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    age: '',
-    gender: '',
-    bio: '',
-    education: '',
-    profession: '',
-    location: '',
-    sectPreference: '',
-    prayerPractice: '',
-    hijabPreference: '',
-    photoPrivacy: 'private',
-    profileVisibility: 'public',
-  })
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    } else if (status === 'authenticated') {
-      fetchProfile()
-    }
-  }, [status, router])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch('/api/profile')
       const data = await response.json()
 
       if (response.ok && data.profile) {
         const profile = data.profile
-        setFormData({
+        form.reset({
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
-          age: profile.age?.toString() || '',
-          gender: profile.gender || '',
+          age: typeof profile.age === 'number' ? profile.age : parseInt(profile.age, 10) || 18,
+          gender: profile.gender === 'female' ? 'female' : 'male',
           bio: profile.bio || '',
           education: profile.education || '',
           profession: profile.profession || '',
           location: profile.location || '',
+          city: profile.city || '',
           sectPreference: profile.sectPreference || '',
           prayerPractice: profile.prayerPractice || '',
           hijabPreference: profile.hijabPreference || '',
@@ -70,28 +80,38 @@ export default function EditProfilePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [form])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    } else if (status === 'authenticated') {
+      fetchProfile()
+    }
+  }, [status, router, fetchProfile])
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      setError(t('validation.fileSizeExceeded', { max: '5MB' }))
+      e.target.value = ''
+      return
+    }
+
     setUploading(true)
     setError('')
     setSuccess('')
+    const preview = URL.createObjectURL(file)
+    setPhotoPreviewUrl(preview)
 
     try {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('isPrimary', photos.length === 0 ? 'true' : 'false')
-      formData.append('privacy', 'private')
+      formData.append('privacy', form.getValues('photoPrivacy') || 'private')
 
       const response = await fetch('/api/upload/photo', {
         method: 'POST',
@@ -107,7 +127,7 @@ export default function EditProfilePage() {
         return
       }
 
-      setSuccess('Photo uploaded successfully')
+      setSuccess(t('profile.photoUploadSuccess'))
       // Refresh photos list
       await fetchProfile()
       
@@ -118,6 +138,8 @@ export default function EditProfilePage() {
       setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
     } finally {
       setUploading(false)
+      if (preview) URL.revokeObjectURL(preview)
+      setPhotoPreviewUrl(null)
     }
   }
 
@@ -144,7 +166,7 @@ export default function EditProfilePage() {
         return
       }
 
-      setSuccess('Photo set as primary successfully')
+      setSuccess(t('profile.photoSetPrimarySuccess'))
       // Refresh photos list
       await fetchProfile()
       // Trigger header refresh
@@ -159,9 +181,14 @@ export default function EditProfilePage() {
   }
 
   const handleDeletePhoto = async (photoId: string) => {
-    if (!confirm('Are you sure you want to delete this photo? This action cannot be undone.')) {
-      return
-    }
+    const ok = await confirm({
+      title: t('profile.deletePhoto'),
+      description: t('profile.deletePhotoConfirm'),
+      confirmText: t('common.delete'),
+      cancelText: t('common.cancel'),
+      variant: 'danger',
+    })
+    if (!ok) return
 
     setProcessing(photoId)
     setError('')
@@ -179,7 +206,7 @@ export default function EditProfilePage() {
         return
       }
 
-      setSuccess('Photo deleted successfully')
+      setSuccess(t('profile.photoDeleteSuccess'))
       // Refresh photos list
       await fetchProfile()
       setTimeout(() => setSuccess(''), 3000)
@@ -191,8 +218,7 @@ export default function EditProfilePage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (values: ProfileFormValues) => {
     setError('')
     setSaving(true)
 
@@ -202,10 +228,7 @@ export default function EditProfilePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          age: parseInt(formData.age),
-        }),
+        body: JSON.stringify(values),
       })
 
       const data = await response.json()
@@ -228,19 +251,21 @@ export default function EditProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('profile.editProfile')}</h1>
+    <PageLayout containerClassName="max-w-4xl">
+      <AnimatedBackground intensity="subtle" />
+      <div className="relative z-10">
+        <Card>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('profile.editProfile')}</h1>
+          <p className="text-base text-gray-600 mb-6">{t('profile.updateProfileDescription')}</p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-ios mb-4">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-ios mb-4">
               {success}
             </div>
           )}
@@ -248,6 +273,15 @@ export default function EditProfilePage() {
           {/* Photo Upload Section */}
           <div className="mb-8 border-b pb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('profile.photos')}</h2>
+            {photoPreviewUrl && (
+              <div className="mb-4">
+                <p className="text-sm text-iosGray-1 mb-2">{t('profile.photoPreview')}</p>
+                <div className="relative w-32 h-32 rounded-ios overflow-hidden border border-iosGray-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photoPreviewUrl} alt={t('profile.photoPreview')} className="w-full h-full object-cover" />
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               {photos.map((photo) => (
                 <div key={photo.id} className="relative h-32 md:h-40 rounded-lg overflow-hidden border-2 border-gray-200 group">
@@ -302,248 +336,109 @@ export default function EditProfilePage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Same form fields as create page */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name *
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  required
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name *
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  required
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
-                  Age *
-                </label>
-                <input
-                  type="number"
-                  id="age"
-                  name="age"
-                  required
-                  min="18"
-                  max="100"
-                  value={formData.age}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
-                  Gender *
-                </label>
-                <select
-                  id="gender"
+          <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField name="firstName" label={t('profile.firstName')} required placeholder={t('profile.firstName')} />
+                <FormField name="lastName" label={t('profile.lastName')} required placeholder={t('profile.lastName')} />
+                <FormField name="age" type="number" label={t('profile.age')} required />
+                <FormField
                   name="gender"
+                  as="select"
+                  label={t('profile.gender')}
                   required
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                >
-                  <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
-                  Education
-                </label>
-                <input
-                  type="text"
-                  id="education"
-                  name="education"
-                  value={formData.education}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
+                  options={[
+                    { value: 'male', label: t('profile.male') },
+                    { value: 'female', label: t('profile.female') },
+                  ]}
                 />
+                <FormField name="education" label={t('profile.education')} placeholder={t('profile.education')} />
+                <FormField name="profession" label={t('profile.profession')} placeholder={t('profile.profession')} />
+                <FormField name="location" label={t('profile.location')} placeholder={t('profile.location')} />
+                <FormField name="city" label={t('profile.city')} required placeholder={t('profile.city')} />
               </div>
 
-              <div>
-                <label htmlFor="profession" className="block text-sm font-medium text-gray-700 mb-1">
-                  Profession
-                </label>
-                <input
-                  type="text"
-                  id="profession"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                Bio / About Me
-              </label>
-              <textarea
-                id="bio"
+              <FormField
                 name="bio"
-                rows={4}
-                value={formData.bio}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
+                as="textarea"
+                label={`${t('profile.bio')} / ${t('profile.aboutMe')}`}
+                placeholder={t('profile.tellAboutYourself')}
               />
-            </div>
 
-            <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Islamic/Cultural Preferences</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="sectPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                    Sect Preference
-                  </label>
-                  <select
-                    id="sectPreference"
+              <div className="border-t border-iosGray-5 pt-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('profile.islamicPreferences')}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
                     name="sectPreference"
-                    value={formData.sectPreference}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  >
-                    <option value="">Select preference</option>
-                    <option value="sunni">Sunni</option>
-                    <option value="shia">Shia</option>
-                    <option value="no-preference">No Preference</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="prayerPractice" className="block text-sm font-medium text-gray-700 mb-1">
-                    Prayer Practice
-                  </label>
-                  <select
-                    id="prayerPractice"
+                    as="select"
+                    label={t('profile.sectPreference')}
+                    options={[
+                      { value: 'sunni', label: t('profile.sunni') },
+                      { value: 'shia', label: t('profile.shia') },
+                      { value: 'no-preference', label: t('profile.noPreference') },
+                    ]}
+                  />
+                  <FormField
                     name="prayerPractice"
-                    value={formData.prayerPractice}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  >
-                    <option value="">Select practice</option>
-                    <option value="regular">Regular</option>
-                    <option value="sometimes">Sometimes</option>
-                    <option value="special-occasions">Special Occasions</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="hijabPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                    Hijab Preference (for matches)
-                  </label>
-                  <select
-                    id="hijabPreference"
+                    as="select"
+                    label={t('profile.prayerPractice')}
+                    options={[
+                      { value: 'regular', label: t('profile.regular') },
+                      { value: 'sometimes', label: t('profile.sometimes') },
+                      { value: 'special-occasions', label: t('profile.specialOccasions') },
+                    ]}
+                  />
+                  <FormField
                     name="hijabPreference"
-                    value={formData.hijabPreference}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  >
-                    <option value="">Select preference</option>
-                    <option value="required">Required</option>
-                    <option value="preferred">Preferred</option>
-                    <option value="no-preference">No Preference</option>
-                  </select>
+                    as="select"
+                    label={t('profile.hijabPreference')}
+                    options={[
+                      { value: 'required', label: t('profile.required') },
+                      { value: 'preferred', label: t('profile.preferred') },
+                      { value: 'no-preference', label: t('profile.noPreference') },
+                    ]}
+                  />
                 </div>
               </div>
-            </div>
 
-            <div className="border-t pt-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy Settings</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="photoPrivacy" className="block text-sm font-medium text-gray-700 mb-1">
-                    Photo Privacy
-                  </label>
-                  <select
-                    id="photoPrivacy"
+              <div className="border-t border-iosGray-5 pt-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('profile.privacySettings')}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
                     name="photoPrivacy"
-                    value={formData.photoPrivacy}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  >
-                    <option value="private">Private</option>
-                    <option value="public">Public</option>
-                    <option value="verified-only">Verified Users Only</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="profileVisibility" className="block text-sm font-medium text-gray-700 mb-1">
-                    Profile Visibility
-                  </label>
-                  <select
-                    id="profileVisibility"
+                    as="select"
+                    label={t('profile.photoPrivacy')}
+                    options={[
+                      { value: 'private', label: t('profile.private') },
+                      { value: 'public', label: t('profile.public') },
+                      { value: 'verified-only', label: t('profile.verifiedUsersOnly') },
+                    ]}
+                  />
+                  <FormField
                     name="profileVisibility"
-                    value={formData.profileVisibility}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
-                  >
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                    <option value="verified-only">Verified Users Only</option>
-                  </select>
+                    as="select"
+                    label={t('profile.profileVisibility')}
+                    options={[
+                      { value: 'public', label: t('profile.public') },
+                      { value: 'private', label: t('profile.private') },
+                      { value: 'verified-only', label: t('profile.verifiedUsersOnly') },
+                    ]}
+                  />
                 </div>
               </div>
-            </div>
 
-            <div className="flex justify-end space-x-4 pt-6">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </form>
-        </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                <Button variant="secondary" type="button" onClick={() => router.push('/profile')} fullWidth>
+                  {t('common.cancel')}
+                </Button>
+                <Button variant="primary" type="submit" loading={saving} fullWidth>
+                  {t('common.save')}
+                </Button>
+              </div>
+            </form>
+          </FormProvider>
+        </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }

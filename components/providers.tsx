@@ -1,6 +1,8 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
+import { ToastProvider } from '@/components/ui/Toast'
+import { ConfirmProvider } from '@/components/ui/Confirm'
 
 /**
  * Global providers for the app.
@@ -18,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       refetchInterval={5 * 60} // Refetch session every 5 minutes instead of on every request
       refetchOnWindowFocus={false} // Don't refetch on window focus to reduce API calls
     >
-      {children}
+      <ToastProvider>
+        <ConfirmProvider>{children}</ConfirmProvider>
+      </ToastProvider>
     </SessionProvider>
   )
 }

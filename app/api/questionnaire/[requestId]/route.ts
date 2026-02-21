@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
+import { createNotification, getUserDisplayName } from '@/lib/notifications'
 import { z } from 'zod'
 
 const questionSchema = z.object({
@@ -193,6 +194,22 @@ export async function POST(
       .update({ connection_status: 'questionnaire_sent' })
       .eq('id', requestId)
 
+    // Notify receiver that questions arrived
+    try {
+      const senderName = await getUserDisplayName(session.user.id)
+      await createNotification({
+        userId: questionnaire.receiver_id,
+        type: 'questionnaire',
+        title: `Questions from ${senderName}`,
+        message: 'You have pending questions to answer.',
+        link: `/messaging/questionnaire/${requestId}`,
+        metadata: { requestId, questionnaireId: questionnaire.id, senderId: session.user.id },
+        dedupeKey: `questionnaire:${questionnaire.id}`,
+      })
+    } catch (e) {
+      console.error('Failed to create questionnaire notification:', e)
+    }
+
     return NextResponse.json(
       {
         message: 'Questionnaire sent successfully',
@@ -340,6 +357,22 @@ export async function PATCH(
       if (updateError) {
         console.error('Error updating connection status:', updateError)
       }
+    }
+
+    // Notify sender that answers are ready
+    try {
+      const receiverName = await getUserDisplayName(session.user.id)
+      await createNotification({
+        userId: updated.sender_id,
+        type: 'questionnaire_answered',
+        title: `${receiverName} answered your questions`,
+        message: 'View their answers.',
+        link: `/messaging/questionnaire/${requestId}`,
+        metadata: { requestId, questionnaireId },
+        dedupeKey: `questionnaire_answered:${questionnaireId}`,
+      })
+    } catch (e) {
+      console.error('Failed to create questionnaire answered notification:', e)
     }
 
     return NextResponse.json(

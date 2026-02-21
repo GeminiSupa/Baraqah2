@@ -3,10 +3,16 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/components/LanguageProvider'
+import { PageLayout } from '@/components/layout/PageLayout'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { AnimatedBackground } from '@/components/AnimatedBackground'
 
 export default function IDVerificationPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useTranslation()
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -39,14 +45,16 @@ export default function IDVerificationPage() {
                          (fileExtension && allowedExtensions.includes(fileExtension))
       
       if (!isValidType) {
-        setError(`Invalid file type. Only PDF, JPG, and PNG are allowed. Detected: ${selectedFile.type || 'unknown'}`)
+        setError(
+          t('idVerification.invalidFileType', { type: selectedFile.type || t('common.unknown') })
+        )
         return
       }
 
       // Validate file size (5MB)
       const maxSize = 5 * 1024 * 1024
       if (selectedFile.size > maxSize) {
-        setError('File size exceeds 5MB limit.')
+        setError(t('idVerification.fileSizeExceeded', { max: '5MB' }))
         return
       }
 
@@ -59,7 +67,7 @@ export default function IDVerificationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) {
-      setError('Please select a file')
+      setError(t('idVerification.selectFile'))
       return
     }
 
@@ -101,41 +109,41 @@ export default function IDVerificationPage() {
   }
 
   if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{t('common.loading')}</div>
   }
 
   if (idVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6">
-        <div className="max-w-md w-full text-center">
-          <div className="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">ID Verified</h2>
-            <p>Your identity has been verified. You can now create your profile.</p>
-            <button
-              onClick={() => router.push('/profile/create')}
-              className="mt-4 bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700"
-            >
-              Create Profile
-            </button>
-          </div>
+      <PageLayout containerClassName="max-w-md">
+        <AnimatedBackground intensity="subtle" />
+        <div className="relative z-10 text-center">
+          <Card>
+            <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-5 rounded-ios">
+              <h2 className="text-xl font-semibold mb-2">{t('idVerification.verifiedTitle')}</h2>
+              <p className="text-sm text-green-700">{t('idVerification.verifiedDescription')}</p>
+              <div className="mt-4">
+                <Button onClick={() => router.push('/profile/create')} fullWidth>
+                  {t('idVerification.createProfile')}
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
-      </div>
+      </PageLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 relative">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100/50 p-6 md:p-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Identity Verification</h1>
-          <p className="text-base text-gray-600 mb-6">
-            To ensure the safety and authenticity of our matrimony platform, please upload a
-            government-issued ID document (passport, national ID, driver&apos;s license, etc.) for verification.
-          </p>
+    <PageLayout containerClassName="max-w-2xl">
+      <AnimatedBackground intensity="subtle" />
+      <div className="relative z-10">
+        <Card>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('idVerification.title')}</h1>
+          <p className="text-base text-gray-600 mb-6">{t('idVerification.description')}</p>
 
           {success && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-4">
-              ID document uploaded successfully. Your document is under review and you will be notified once verified.
+              {t('idVerification.uploadSuccess')}
             </div>
           )}
 
@@ -148,7 +156,7 @@ export default function IDVerificationPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-2">
-                Upload ID Document *
+                {t('idVerification.uploadLabel')} *
               </label>
               <input
                 id="file"
@@ -161,27 +169,27 @@ export default function IDVerificationPage() {
                 required
               />
               <p className="mt-2 text-sm text-gray-500">
-                Accepted formats: PDF, JPG, PNG. Maximum file size: 5MB
+                {t('idVerification.acceptedFormats')}
               </p>
             </div>
 
             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-xl text-sm">
-              <strong>Privacy Notice:</strong> Your ID document will be securely stored and only used for
-              verification purposes. Once verified, access to the document is restricted to administrators only.
+              <strong>{t('idVerification.privacyNoticeTitle')}</strong> {t('idVerification.privacyNoticeBody')}
             </div>
 
             <div>
-              <button
+              <Button
                 type="submit"
                 disabled={uploading || !file}
-                className="w-full flex justify-center py-3 px-6 border border-transparent rounded-xl shadow-md text-base font-semibold text-white bg-iosBlue hover:bg-iosBlue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iosBlue disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                fullWidth
+                loading={uploading}
               >
-                {uploading ? 'Uploading...' : 'Upload Document'}
-              </button>
+                {t('idVerification.uploadButton')}
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }

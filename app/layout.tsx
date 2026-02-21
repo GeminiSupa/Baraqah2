@@ -24,7 +24,9 @@ export default function RootLayout({
           <LanguageProvider>
             <DisclaimerBanner />
             <Header />
-            <main className="min-h-screen flex flex-col pb-16 md:pb-0">{children}</main>
+            <main className="min-h-screen flex flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+              {children}
+            </main>
             <MobileNavigation />
             <Footer />
           </LanguageProvider>

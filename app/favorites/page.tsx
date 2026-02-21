@@ -10,6 +10,8 @@ import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { EmptyFavorites } from '@/components/ui/EmptyState'
 import { useTranslation } from '@/components/LanguageProvider'
+import { useConfirm } from '@/components/ui/Confirm'
+import { useToast } from '@/components/ui/Toast'
 
 interface Favorite {
   id: string
@@ -35,6 +37,8 @@ export default function FavoritesPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useTranslation()
+  const { confirm } = useConfirm()
+  const { toast } = useToast()
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
   const [removing, setRemoving] = useState<string | null>(null)
@@ -69,7 +73,14 @@ export default function FavoritesPage() {
   }
 
   const handleRemove = async (userId: string) => {
-    if (!confirm(t('favorites.removeFromFavorites'))) return
+    const ok = await confirm({
+      title: t('favorites.removeFromFavoritesTitle'),
+      description: t('favorites.removeFromFavorites'),
+      confirmText: t('common.remove'),
+      cancelText: t('common.cancel'),
+      variant: 'danger',
+    })
+    if (!ok) return
 
     setRemoving(userId)
     try {
@@ -79,9 +90,22 @@ export default function FavoritesPage() {
 
       if (response.ok) {
         setFavorites(favorites.filter(f => f.userId !== userId))
+        toast({ variant: 'success', title: t('favorites.removedFromFavorites') })
+      } else {
+        const data = await response.json().catch(() => ({}))
+        toast({
+          variant: 'error',
+          title: t('common.error'),
+          description: data.error || t('favorites.failedToRemove'),
+        })
       }
     } catch (error) {
       console.error('Error removing favorite:', error)
+      toast({
+        variant: 'error',
+        title: t('common.error'),
+        description: t('favorites.failedToRemove'),
+      })
     } finally {
       setRemoving(null)
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Switch } from '@/components/ui/Switch'
@@ -9,6 +9,10 @@ import { Card } from '@/components/ui/Card'
 import { Select } from '@/components/ui/Select'
 import Link from 'next/link'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
+import { useConfirm } from '@/components/ui/Confirm'
+import { useToast } from '@/components/ui/Toast'
+import { useTranslation } from '@/components/LanguageProvider'
+import { PageLayout } from '@/components/layout/PageLayout'
 
 interface PrivacySettings {
   profileVisibility: string
@@ -34,6 +38,9 @@ interface BlockedUser {
 export default function PrivacySettingsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { confirm } = useConfirm()
+  const { toast } = useToast()
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -47,15 +54,7 @@ export default function PrivacySettingsPage() {
   })
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([])
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-    } else if (status === 'authenticated') {
-      fetchSettings()
-    }
-  }, [status, router])
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch('/api/privacy')
@@ -65,14 +64,22 @@ export default function PrivacySettingsPage() {
         setSettings(data.settings)
         setBlockedUsers(data.blockedUsers || [])
       } else {
-        setError(data.error || 'Failed to load privacy settings')
+        setError(data.error || t('settings.privacyLoadFailed'))
       }
     } catch (error) {
-      setError('Failed to load privacy settings')
+      setError(t('settings.privacyLoadFailed'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [t])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    } else if (status === 'authenticated') {
+      fetchSettings()
+    }
+  }, [status, router, fetchSettings])
 
   const handleSave = async () => {
     setSaving(true)
@@ -91,13 +98,13 @@ export default function PrivacySettingsPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess('Privacy settings saved successfully')
+        setSuccess(t('settings.privacySaved'))
         setTimeout(() => setSuccess(''), 3000)
       } else {
-        setError(data.error || 'Failed to save privacy settings')
+        setError(data.error || t('settings.privacySaveFailed'))
       }
     } catch (error) {
-      setError('Failed to save privacy settings')
+      setError(t('settings.privacySaveFailed'))
     } finally {
       setSaving(false)
     }
@@ -118,30 +125,30 @@ export default function PrivacySettingsPage() {
 
       if (response.ok) {
         setBlockedUsers(blockedUsers.filter(u => u.id !== userId))
-        setSuccess('User unblocked successfully')
+        setSuccess(t('settings.userUnblocked'))
         setTimeout(() => setSuccess(''), 3000)
       } else {
-        setError('Failed to unblock user')
+        setError(t('settings.unblockFailed'))
       }
     } catch (error) {
-      setError('Failed to unblock user')
+      setError(t('settings.unblockFailed'))
     }
   }
 
   if (status === 'loading' || loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{t('common.loading')}</div>
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom relative">
+    <PageLayout containerClassName="max-w-3xl">
       <AnimatedBackground intensity="subtle" />
-      <div className="max-w-3xl mx-auto relative z-10">
+      <div className="relative z-10">
         <div className="mb-8">
           <Link href="/profile" className="text-iosBlue hover:text-iosBlue-dark mb-4 inline-block font-medium">
-            ← Back to Profile
+            ← {t('common.back')} {t('navigation.profile')}
           </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Privacy Settings</h1>
-          <p className="text-base text-gray-600">Control who can see your profile and information</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t('settings.privacy')}</h1>
+          <p className="text-base text-gray-600">{t('settings.privacyDescription')}</p>
         </div>
 
         {error && (
@@ -157,63 +164,63 @@ export default function PrivacySettingsPage() {
         )}
 
         {/* Profile Visibility */}
-        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Profile Visibility</h2>
+        <Card className="mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('settings.profileVisibility')}</h2>
           <Select
-            label="Who can see your profile?"
+            label={t('settings.whoCanSeeProfile')}
             value={settings.profileVisibility}
             onChange={(e) => setSettings({ ...settings, profileVisibility: e.target.value })}
             options={[
-              { value: 'public', label: 'Everyone' },
-              { value: 'verified-only', label: 'Verified users only' },
-              { value: 'private', label: 'Only people I connect with' },
+              { value: 'public', label: t('settings.everyone') },
+              { value: 'verified-only', label: t('settings.verifiedOnly') },
+              { value: 'private', label: t('settings.connectionsOnly') },
             ]}
           />
         </Card>
 
         {/* Photo Privacy */}
-        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Photo Privacy</h2>
+        <Card className="mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('settings.photoPrivacy')}</h2>
           <Select
-            label="Who can see your photos?"
+            label={t('settings.whoCanSeePhotos')}
             value={settings.photoPrivacy}
             onChange={(e) => setSettings({ ...settings, photoPrivacy: e.target.value })}
             options={[
-              { value: 'public', label: 'Everyone' },
-              { value: 'connections-only', label: 'Only connections' },
-              { value: 'private', label: 'Private' },
+              { value: 'public', label: t('settings.everyone') },
+              { value: 'connections-only', label: t('settings.connectionsOnly') },
+              { value: 'private', label: t('settings.private') },
             ]}
           />
         </Card>
 
         {/* Questionnaire Privacy */}
-        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Questionnaire Privacy</h2>
+        <Card className="mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('settings.questionnairePrivacy')}</h2>
           <Select
-            label="Who can see your questionnaire answers?"
+            label={t('settings.whoCanSeeQuestionnaire')}
             value={settings.questionnairePrivacy}
             onChange={(e) => setSettings({ ...settings, questionnairePrivacy: e.target.value })}
             options={[
-              { value: 'public', label: 'Everyone' },
-              { value: 'connections-only', label: 'Only connections' },
-              { value: 'private', label: 'Private' },
+              { value: 'public', label: t('settings.everyone') },
+              { value: 'connections-only', label: t('settings.connectionsOnly') },
+              { value: 'private', label: t('settings.private') },
             ]}
           />
         </Card>
 
         {/* Other Settings */}
-        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Other Settings</h2>
+        <Card className="mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('settings.otherSettings')}</h2>
           <div className="space-y-4">
             <Switch
-              label="Hide from search"
-              description="Your profile won&apos;t appear in browse or search results"
+              label={t('settings.hideFromSearch')}
+              description={t('settings.hideFromSearchDescription')}
               checked={settings.hideFromSearch}
               onChange={(e) => setSettings({ ...settings, hideFromSearch: e.target.checked })}
             />
             <Switch
-              label="Show online status"
-              description="Let others see when you&apos;re online"
+              label={t('settings.showOnlineStatus')}
+              description={t('settings.showOnlineStatusDescription')}
               checked={settings.showOnlineStatus}
               onChange={(e) => setSettings({ ...settings, showOnlineStatus: e.target.checked })}
             />
@@ -221,10 +228,10 @@ export default function PrivacySettingsPage() {
         </Card>
 
         {/* Blocked Users */}
-        <Card className="mb-6 rounded-3xl shadow-xl border border-gray-100/50">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">Blocked Users</h2>
+        <Card className="mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6">{t('settings.blockedUsers')}</h2>
           {blockedUsers.length === 0 ? (
-            <p className="text-ios-body text-iosGray-1">No blocked users</p>
+            <p className="text-ios-body text-iosGray-1">{t('settings.noBlockedUsers')}</p>
           ) : (
             <div className="space-y-3">
               {blockedUsers.map((blocked) => (
@@ -236,7 +243,7 @@ export default function PrivacySettingsPage() {
                         : blocked.user?.email || 'Unknown User'}
                     </p>
                     <p className="text-ios-footnote text-iosGray-1">
-                      Blocked on {new Date(blocked.blockedAt).toLocaleDateString()}
+                      {t('settings.blockedOn')} {new Date(blocked.blockedAt).toLocaleDateString()}
                     </p>
                   </div>
                   <Button
@@ -244,7 +251,7 @@ export default function PrivacySettingsPage() {
                     size="sm"
                     onClick={() => handleUnblock(blocked.id)}
                   >
-                    Unblock
+                    {t('settings.unblock')}
                   </Button>
                 </div>
               ))}
@@ -253,22 +260,32 @@ export default function PrivacySettingsPage() {
         </Card>
 
         {/* Delete Account Section */}
-        <Card className="mb-6 rounded-3xl shadow-xl border border-red-100/50 bg-red-50/30">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">Delete Account</h2>
+        <Card className="mb-6 border border-red-100/50 bg-red-50/30">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">{t('settings.deleteAccount')}</h2>
           <p className="text-sm text-gray-600 mb-4">
-            Permanently delete your account and all associated data. This action cannot be undone.
+            {t('settings.deleteAccountDescription')}
           </p>
           <Button
             variant="danger"
             size="md"
             onClick={async () => {
-              if (!confirm('Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.')) {
-                return
-              }
-              
-              if (!confirm('This is your final warning. Your account, profile, photos, messages, and all data will be permanently deleted. Are you absolutely sure?')) {
-                return
-              }
+              const first = await confirm({
+                title: t('settings.deleteAccountConfirmTitle'),
+                description: t('settings.deleteAccountConfirmDescription'),
+                confirmText: t('common.continue'),
+                cancelText: t('common.cancel'),
+                variant: 'danger',
+              })
+              if (!first) return
+
+              const second = await confirm({
+                title: t('settings.deleteAccountFinalTitle'),
+                description: t('settings.deleteAccountFinalDescription'),
+                confirmText: t('settings.deleteAccountFinalConfirm'),
+                cancelText: t('common.cancel'),
+                variant: 'danger',
+              })
+              if (!second) return
 
               try {
                 setSaving(true)
@@ -280,14 +297,18 @@ export default function PrivacySettingsPage() {
                 const data = await response.json()
 
                 if (response.ok) {
-                  alert('Your account has been deleted successfully. You will be redirected to the home page.')
+                  toast({
+                    variant: 'success',
+                    title: t('settings.accountDeletedTitle'),
+                    description: t('settings.accountDeletedDescription'),
+                  })
                   router.push('/')
                   // Sign out will happen automatically on redirect
                 } else {
-                  setError(data.error || 'Failed to delete account')
+                  setError(data.error || t('settings.deleteAccountFailed'))
                 }
               } catch (error) {
-                setError('An error occurred. Please try again.')
+                setError(t('auth.errorOccurred'))
               } finally {
                 setSaving(false)
               }
@@ -295,7 +316,7 @@ export default function PrivacySettingsPage() {
             disabled={saving}
             className="font-semibold"
           >
-            {saving ? 'Deleting...' : 'Delete My Account'}
+            {saving ? t('settings.deleting') : t('settings.deleteMyAccount')}
           </Button>
         </Card>
 
@@ -305,9 +326,9 @@ export default function PrivacySettingsPage() {
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Privacy Settings'}
+          {saving ? t('common.saving') : t('settings.savePrivacySettings')}
         </Button>
       </div>
-    </div>
+    </PageLayout>
   )
 }

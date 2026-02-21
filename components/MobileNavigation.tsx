@@ -9,7 +9,7 @@ export function MobileNavigation() {
   if (!session?.user) return null
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-iosGray-4 safe-bottom md:hidden z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-iosGray-4 md:hidden z-50 pb-[env(safe-area-inset-bottom)]">
       <NavList variant="mobile" />
     </nav>
   )

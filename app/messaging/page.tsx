@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { AnimatedBackground } from '@/components/AnimatedBackground'
 import { EmptyMessages } from '@/components/ui/EmptyState'
 import { useTranslation } from '@/components/LanguageProvider'
+import { PageLayout } from '@/components/layout/PageLayout'
+import { useToast } from '@/components/ui/Toast'
 
 interface MessageRequest {
   id: string
@@ -40,6 +42,7 @@ export default function MessagingPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { t } = useTranslation()
+  const { toast } = useToast()
   const [requests, setRequests] = useState<MessageRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [requestType, setRequestType] = useState<'received' | 'sent'>('received')
@@ -110,11 +113,19 @@ export default function MessagingPage() {
         await fetchRequests()
       } else {
         console.error('Failed to approve request:', data.error)
-        alert(data.error || 'Unable to approve request. Please try again or refresh the page.')
+        toast({
+          variant: 'error',
+          title: t('common.error'),
+          description: data.error || t('messaging.unableToApprove'),
+        })
       }
     } catch (error) {
       console.error('Error approving request:', error)
-      alert('An error occurred while approving the request. Please check your connection and try again.')
+      toast({
+        variant: 'error',
+        title: t('common.error'),
+        description: t('messaging.unableToApprove'),
+      })
     }
   }
 
@@ -134,11 +145,19 @@ export default function MessagingPage() {
         await fetchRequests()
       } else {
         console.error('Failed to reject request:', data.error)
-        alert(data.error || 'Unable to reject request. Please try again or refresh the page.')
+        toast({
+          variant: 'error',
+          title: t('common.error'),
+          description: data.error || t('messaging.unableToReject'),
+        })
       }
     } catch (error) {
       console.error('Error rejecting request:', error)
-      alert('An error occurred while rejecting the request. Please check your connection and try again.')
+      toast({
+        variant: 'error',
+        title: t('common.error'),
+        description: t('messaging.unableToReject'),
+      })
     }
   }
 
@@ -147,7 +166,7 @@ export default function MessagingPage() {
       <div className="min-h-screen bg-iosBg-secondary flex items-center justify-center safe-top safe-bottom">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-iosBlue mb-4"></div>
-          <p className="text-ios-body text-iosGray-1">Loading messages...</p>
+          <p className="text-ios-body text-iosGray-1">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -159,14 +178,14 @@ export default function MessagingPage() {
   const rejectedRequests = requests.filter(r => r.status === 'rejected')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 py-6 md:py-10 px-4 sm:px-6 safe-top safe-bottom pb-24 md:pb-10 relative">
+    <PageLayout>
       <AnimatedBackground intensity="subtle" />
-      <div className="relative z-10">
-      <div className="max-w-4xl mx-auto">
+      <div className="relative z-10 max-w-4xl mx-auto">
         {/* Mobile Back Button */}
         <button
           onClick={() => router.back()}
           className="md:hidden mb-4 flex items-center text-gray-700 hover:text-gray-900 ios-press"
+          aria-label={t('common.back')}
         >
           <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -289,7 +308,19 @@ export default function MessagingPage() {
               <div className="space-y-4">
                 {approvedRequests.map((request) => {
                   const otherUser = requestType === 'received' ? request.sender : request.receiver
-                  const canMessage = request.connectionStatus === 'connected' || request.connectionStatus === 'questionnaire_completed'
+                  const canMessage =
+                    request.connectionStatus === 'connected' ||
+                    request.connectionStatus === 'questionnaire_completed'
+                  const showQuestionnaireCta =
+                    request.connectionStatus === 'questionnaire_sent' ||
+                    request.connectionStatus === 'questionnaire_completed' ||
+                    request.connectionStatus === 'connected'
+                  const questionnaireLabel =
+                    request.connectionStatus === 'questionnaire_sent'
+                      ? t('messaging.answerCustomQuestions')
+                      : request.connectionStatus === 'connected'
+                      ? t('messaging.viewCustomQuestions')
+                      : t('messaging.sendCustomQuestions')
                   
                   return (
                     <div key={request.id} className="bg-gray-50 border border-gray-200 rounded-3xl p-6 shadow-lg">
@@ -312,7 +343,7 @@ export default function MessagingPage() {
                             )}
                           </div>
                           <p className="text-base text-gray-600 mb-1">
-                            {t('common.status')}: <span className="font-medium">{request.connectionStatus.replace('_', ' ').toUpperCase()}</span>
+                            {t('common.status')}: <span className="font-medium">{request.connectionStatus.replace(/_/g, ' ').toUpperCase()}</span>
                           </p>
                           <p className="text-sm text-gray-500">
                             {new Date(request.createdAt).toLocaleDateString()}
@@ -328,55 +359,21 @@ export default function MessagingPage() {
                               {t('messaging.completeCompatibility')}
                             </Link>
                           )}
-                          
-                          {/* Step 2: After compatibility questionnaire or when connected, show option to send custom questions OR start messaging */}
-                          {(request.connectionStatus === 'questionnaire_completed' || request.connectionStatus === 'connected') && (
-                            <>
-                              <Link
-                                href={`/messaging/questionnaire/${request.id}`}
-                                className="px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
-                              >
-                                {t('messaging.sendCustomQuestions')}
-                              </Link>
-                              <Link
-                                href={`/messaging/${otherUser?.id}`}
-                                className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
-                              >
-                                {t('messaging.sendMessage')}
-                              </Link>
-                            </>
-                          )}
-                          
-                          {/* Step 3: Answer custom questions if someone sent them */}
-                          {request.connectionStatus === 'questionnaire_sent' && (
+
+                          {/* Custom questionnaire CTA */}
+                          {showQuestionnaireCta && (
                             <Link
                               href={`/messaging/questionnaire/${request.id}`}
-                              className="px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center animate-pulse"
+                              className={`px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center ${
+                                request.connectionStatus === 'questionnaire_sent' ? 'animate-pulse' : ''
+                              }`}
                             >
-                              {t('messaging.answerCustomQuestions')}
+                              {questionnaireLabel}
                             </Link>
                           )}
-                          
-                          {/* Step 4: View custom questions and message after both answered */}
-                          {request.connectionStatus === 'connected' && (
-                            <>
-                              <Link
-                                href={`/messaging/questionnaire/${request.id}`}
-                                className="px-5 py-3 min-h-[44px] bg-orange-500 text-white rounded-xl hover:bg-orange-600 text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
-                              >
-                                {t('messaging.viewCustomQuestions')}
-                              </Link>
-                              <Link
-                                href={`/messaging/${otherUser?.id}`}
-                                className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
-                              >
-                                {t('messaging.sendMessage')}
-                              </Link>
-                            </>
-                          )}
-                          
-                          {/* Fallback: Allow messaging if status allows it */}
-                          {canMessage && !['accepted', 'questionnaire_completed', 'questionnaire_sent', 'connected'].includes(request.connectionStatus) && (
+
+                          {/* Messaging is allowed after questionnaire completion or when connected */}
+                          {canMessage && (
                             <Link
                               href={`/messaging/${otherUser?.id}`}
                               className="px-5 py-3 min-h-[44px] bg-iosBlue text-white rounded-xl hover:bg-iosBlue-dark text-base font-semibold ios-press text-center shadow-md flex items-center justify-center"
@@ -394,7 +391,6 @@ export default function MessagingPage() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </PageLayout>
   )
 }
